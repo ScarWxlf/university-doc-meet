@@ -4,7 +4,7 @@ import Link from "next/link";
 export default function SignUp() {
   return (
     <div className="flex flex-grow h-full">
-      <div className="w-2/5">
+      <div className="w-2/5 relative">
         <Image
           src="/images/signup-bg.png"
           width={1000}
@@ -12,6 +12,34 @@ export default function SignUp() {
           alt="employee"
           className="h-full w-full object-cover"
         />
+        <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50">
+
+        </div>
+        <div className="absolute top-1/2 -translate-y-1/2 flex w-full h-full">
+          <div className="relative flex justify-center w-full h-full">
+            <Image
+              className="z-10 -rotate-[10deg] h-80 mt-20"
+              src="/images/doc.png"
+              width={300}
+              height={300}
+              alt="doc"
+            />
+            <Image
+              className="absolute left-52 top-44 z-20 rotate-[30deg]"
+              src="/images/pdf.png"
+              width={300}
+              height={300}
+              alt="pdf"
+            />
+            <Image
+              className="absolute left-72 top-72 rotate-[80deg] z-30"
+              src="/images/xls.png"
+              width={300}
+              height={300}
+              alt="xls"
+            />
+          </div>
+        </div>
       </div>
       <div className="h-full w-3/5 p-10 flex-grow flex flex-col">
         <div className="flex justify-between items-center">
