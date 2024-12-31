@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
-export default function Signin() {
+export default function SignIn() {
   return (
     <div className="flex flex-grow h-full">
       <div className="w-3/5 p-10">
