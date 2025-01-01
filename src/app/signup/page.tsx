@@ -1,9 +1,22 @@
+'use client'
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 
 export default function SignUp() {
+  const [animated, setAnimated] = useState(false);
+
+  const handleMouseEnter = () => {
+      if(!animated){
+        setAnimated(true);
+        setTimeout(() => {
+          setAnimated(false);
+        }, 3000);
+      }
+  };
+  
   return (
-    <div className="flex flex-grow h-full">
+    <div className="flex flex-grow h-full overflow-hidden">
       <div className="w-2/5 relative">
         <Image
           src="/images/signup-bg.png"
@@ -12,28 +25,27 @@ export default function SignUp() {
           alt="employee"
           className="h-full w-full object-cover"
         />
-        <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50">
-
-        </div>
+        <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50"></div>
         <div className="absolute top-1/2 -translate-y-1/2 flex w-full h-full">
-          <div className="relative flex justify-center w-full h-full">
+          <div className="relative flex w-full h-full">
             <Image
-              className="z-10 -rotate-[10deg] h-80 mt-20"
+              className="absolute top-2 left-2 z-10 -rotate-[10deg] h-80 hover:scale-110 transition-transform duration-300"
               src="/images/doc.png"
               width={300}
               height={300}
               alt="doc"
             />
             <Image
-              className="absolute left-52 top-44 z-20 rotate-[30deg]"
+              className="absolute left-2 bottom-2 z-20 rotate-[30deg] hover:scale-110 transition-transform duration-300"
               src="/images/pdf.png"
               width={300}
               height={300}
               alt="pdf"
             />
             <Image
-              className="absolute left-72 top-72 rotate-[80deg] z-30"
+              className={`absolute left-64 top-5 rotate-[50deg] z-30 transition-transform origin-bottom-left ${animated ? "animate-fallAndWobble" : ""}`}
               src="/images/xls.png"
+              onMouseOver={handleMouseEnter}
               width={300}
               height={300}
               alt="xls"

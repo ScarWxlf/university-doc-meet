@@ -12,6 +12,18 @@ export default {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
+      keyframes: {
+        fallAndWobble: {
+          '20%': { transform: 'rotate(190deg) translateX(-20px)' },
+          '35%': { transform: 'rotate(130deg) translateX(-20px)' },
+          '50%': { transform: 'rotate(190deg) translateX(-20px)' },
+          '75%': { transform: 'rotate(130deg) translateX(-20px)' },
+          '100%': { transform: 'rotate(50deg) translateX(0px)' },
+        },
+      },
+      animation: {
+        fallAndWobble: 'fallAndWobble 3s ease-in-out forwards',
+      },
     },
   },
   plugins: [],
