@@ -2,6 +2,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { Button, buttonVariants } from "@/components/button";
+import { cn } from "@/lib/utils";
 
 export default function SignUp() {
   const [animated, setAnimated] = useState(false);
@@ -14,6 +16,11 @@ export default function SignUp() {
         }, 3000);
       }
   };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log("submit");
+  }
   
   return (
     <div className="flex flex-grow h-full overflow-hidden">
@@ -29,21 +36,21 @@ export default function SignUp() {
         <div className="absolute top-1/2 -translate-y-1/2 flex w-full h-full">
           <div className="relative flex w-full h-full">
             <Image
-              className="absolute top-2 left-2 z-10 -rotate-[10deg] h-80 hover:scale-110 transition-transform duration-300"
+              className="absolute top-2 left-2 z-10 -rotate-[10deg] hover:scale-110 transition-transform duration-300 shadow-filter"
               src="/images/doc.png"
               width={300}
               height={300}
               alt="doc"
             />
             <Image
-              className="absolute left-2 bottom-2 z-20 rotate-[30deg] hover:scale-110 transition-transform duration-300"
+              className="absolute left-2 bottom-2 z-20 rotate-[30deg] hover:scale-110 transition-transform duration-300 shadow-filter"
               src="/images/pdf.png"
               width={300}
               height={300}
               alt="pdf"
             />
             <Image
-              className={`absolute left-64 top-5 rotate-[50deg] z-30 transition-transform origin-bottom-left ${animated ? "animate-fallAndWobble" : ""}`}
+              className={`absolute left-64 top-5 rotate-[50deg] z-30 transition-transform origin-bottom-left shadow-filter ${animated ? "animate-fallAndWobble" : ""}`}
               src="/images/xls.png"
               onMouseOver={handleMouseEnter}
               width={300}
@@ -61,7 +68,7 @@ export default function SignUp() {
           </div>
           <div className="text-sm">
             <span>Have an account?</span>
-            <Link href="/signin" className="text-green-500">
+            <Link href="/signin" className={cn(buttonVariants({ variant: "link", size: 'link' }))}>
               {" "}
               Sign in!
             </Link>
@@ -75,7 +82,7 @@ export default function SignUp() {
                 <h2 className="text-xl">Getting started is easy</h2>
               </div>
               <div className="flex gap-2">
-                <button className="flex items-center gap-2 border border-gray-400 rounded-md py-2 px-5 my-2 w-full">
+                <Button variant="outline" className="flex items-center gap-2">
                   <Image
                     src="/images/google.svg"
                     width={20}
@@ -83,7 +90,7 @@ export default function SignUp() {
                     alt="google"
                   />
                   Google
-                </button>
+                </Button>
               </div>
               <div className="flex items-center justify-center w-1/2 my-2">
                 <div className="border-t border-gray-400 flex-grow"></div>
@@ -93,7 +100,7 @@ export default function SignUp() {
                 <div className="border-t border-gray-400 flex-grow" />
               </div>
             </div>
-            <form className="flex flex-col items-center justify-center w-1/2">
+            <form className="flex flex-col items-center justify-center w-1/2" onSubmit={handleSubmit}>
               <input
                 type="text"
                 placeholder="Full Name"
@@ -114,9 +121,9 @@ export default function SignUp() {
                 placeholder="Confirm Password"
                 className="border-2 border-gray-300 rounded-md p-2 my-2 w-full"
               />
-              <button className="bg-green-500 text-white rounded-md p-2 my-2 w-full">
-                Sign In
-              </button>
+              <Button type="submit" variant="default" size="default" className="w-full">
+                Sign Up
+              </Button>
             </form>
           </div>
           <div>

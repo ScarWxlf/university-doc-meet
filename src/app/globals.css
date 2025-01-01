@@ -2,3 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
+.shadow-filter {
+    filter: drop-shadow(10px 10px 15px rgba(0, 0, 0, 0.5));
+  }
