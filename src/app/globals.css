@@ -3,5 +3,18 @@
 @tailwind utilities;
 
 .shadow-filter {
-    filter: drop-shadow(10px 10px 15px rgba(0, 0, 0, 0.5));
-  }
+  filter: drop-shadow(10px 10px 15px rgba(0, 0, 0, 0.5));
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 2px grey;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #b0d1bc; /*#22c55e*/
+  border-radius: 10px;
+}
