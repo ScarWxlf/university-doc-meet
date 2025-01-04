@@ -4,12 +4,45 @@ import Link from "next/link";
 import { Button, buttonVariants } from "@/components/button";
 import { cn } from "@/lib/utils";
 import DecorativeFileSection from "@/components/DecorativeFileSection";
+import { FormEvent, useState } from "react"
+import { registerSchema } from "@/lib/validator";
+import { toast, ToastContainer } from "react-toastify";
+import { z } from "zod";
 
 export default function SignUp() {
+  const [errors, setErrors] = useState({});
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("submit");
+    const data = new FormData(e.currentTarget);
+    const email = data.get("email");
+    const password = data.get("password");
+    const confirmPassword = data.get("confirmPassword");
+    const name = data.get("name");
+    try {
+      registerSchema.parse({ email, password, confirmPassword, name });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const fieldErrors = error.flatten().fieldErrors;
+        setErrors(fieldErrors);
+      }
+    }
+
+    return;
+
+    const response = await fetch("/api/auth/signup", {
+      method: "POST",
+      body: JSON.stringify({
+        email,
+        password,
+        name,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+    const responseJson = await response.json();
+    console.log(responseJson);
   };
 
   return (
@@ -63,21 +96,31 @@ export default function SignUp() {
               onSubmit={handleSubmit}
             >
               <input
+                name="name"
                 type="text"
                 placeholder="Full Name"
                 className="border-2 border-gray-300 rounded-md p-2 my-2 w-full"
               />
+              {errors?.name && (
+                <div className="text-red-500 text-sm">{errors.name}</div>
+              )}
               <input
+                name="email"
                 type="email"
                 placeholder="Email"
                 className="border-2 border-gray-300 rounded-md p-2 my-2 w-full"
               />
               <input
+                name="password"
                 type="password"
                 placeholder="Password"
                 className="border-2 border-gray-300 rounded-md p-2 my-2 w-full"
               />
+              {errors?.password && (
+                <div className="text-red-500 text-sm">{errors.password}</div>
+              )}
               <input
+                name="confirmPassword"
                 type="password"
                 placeholder="Confirm Password"
                 className="border-2 border-gray-300 rounded-md p-2 my-2 w-full"
@@ -96,6 +139,7 @@ export default function SignUp() {
             By continuing you indicate that you read and agreed to the Terms of
             Use
           </div>
+          <ToastContainer />
         </div>
       </div>
     </div>

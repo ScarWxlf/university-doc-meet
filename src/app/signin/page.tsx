@@ -4,8 +4,18 @@ import DecorativeFileSection from "@/components/DecorativeFileSection";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
+import { FormEvent } from "react";
+import { signIn } from 'next-auth/react';
 
 export default function SignIn() {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const data = new FormData(e.currentTarget);
+    const email = data.get("email");
+    const password = data.get("password");
+
+    await signIn('credentials', { email, password });
+  };
   return (
     <div className="flex flex-col lg:flex-row flex-grow lg:overflow-hidden">
       <div className="h-full w-full lg:w-3/5 p-10 flex flex-grow flex-col order-1 lg:-order-1">
@@ -32,7 +42,7 @@ export default function SignIn() {
               <h2 className="text-xl">Login into your account</h2>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" className="flex items-center gap-2">
+              <Button variant="outline" className="flex items-center gap-2" onClick={() => signIn('google')}>
                 <Image
                   src="/images/google.svg"
                   width={20}
@@ -48,13 +58,15 @@ export default function SignIn() {
               <div className="border-t border-gray-400 flex-grow" />
             </div>
           </div>
-          <form className="flex flex-col items-center justify-center w-2/3 sm:w-1/2">
+          <form onSubmit={handleSubmit} className="flex flex-col items-center justify-center w-2/3 sm:w-1/2">
             <input
-              type="text"
+              name="email"
+              type="email"
               placeholder="Email"
               className="border-2 border-gray-300 rounded-md p-2 my-2 w-full"
             />
             <input
+              name="password"
               type="password"
               placeholder="Password"
               className="border-2 border-gray-300 rounded-md p-2 my-2 w-full"
