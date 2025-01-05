@@ -4,17 +4,43 @@ import DecorativeFileSection from "@/components/DecorativeFileSection";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
-import { FormEvent } from "react";
+import { FormEvent, useState } from "react";
 import { signIn } from 'next-auth/react';
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
+import { loginSchema } from "@/lib/validator";
+import { z } from "zod";
 
 export default function SignIn() {
+  const [errors, setErrors] = useState<Record<string, string[] | undefined>>({});
+  const router = useRouter();
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
     const email = data.get("email");
     const password = data.get("password");
 
-    await signIn('credentials', { email, password });
+    try {
+      loginSchema.parse({ email, password });
+      const response = await signIn('credentials', { email, password, redirect: false});
+      if(response?.error){
+        toast.error(response.error, {
+          position: 'bottom-right'
+        })
+      } else {
+        router.replace('/?loginSuccess=true')
+      }
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const fieldErrors = error.flatten().fieldErrors;
+        setErrors(fieldErrors);
+      } else {
+        toast.error((error as Error).message, {
+          position: "bottom-right",
+        });
+      }
+    }
   };
   return (
     <div className="flex flex-col lg:flex-row flex-grow lg:overflow-hidden">
@@ -42,7 +68,7 @@ export default function SignIn() {
               <h2 className="text-xl">Login into your account</h2>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" className="flex items-center gap-2" onClick={() => signIn('google')}>
+              <Button variant="outline" className="flex items-center gap-2" onClick={() => signIn('google', {callbackUrl: '/?loginSuccess=true'})}>
                 <Image
                   src="/images/google.svg"
                   width={20}
@@ -65,17 +91,37 @@ export default function SignIn() {
               placeholder="Email"
               className="border-2 border-gray-300 rounded-md p-2 my-2 w-full"
             />
+            {errors?.email && (
+                <div className="flex flex-col text-red-500 text-sm text-start w-full">
+                  {errors.email.map((error) => (
+                    <div key={error} className="flex items-center gap-2">
+                      <div className="h-1 w-1 rounded-full bg-black"></div>
+                      <div className="my-1">{error}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
             <input
               name="password"
               type="password"
               placeholder="Password"
               className="border-2 border-gray-300 rounded-md p-2 my-2 w-full"
             />
+            {errors?.password && (
+                <div className="flex flex-col text-red-500 text-sm text-start w-full">
+                  {errors.password.map((error) => (
+                    <div key={error} className="flex items-center gap-2">
+                      <div className="h-1 w-1 rounded-full bg-black"></div>
+                      <div className="my-1">{error}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
             <Button
               type="submit"
               variant="default"
               size="default"
-              className="w-full"
+              className="w-full mt-3 mb-4"
             >
               Sign Up
             </Button>

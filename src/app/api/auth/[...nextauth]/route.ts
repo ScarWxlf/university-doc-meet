@@ -10,8 +10,8 @@ const handler = NextAuth({
   providers: [
     // Google Provider
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
 
     // Credentials Provider (Email and Password)
@@ -22,32 +22,37 @@ const handler = NextAuth({
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        const { email, password } = credentials;
+        const { email, password } = credentials!;
 
-        // Find user in database
         const user = await prisma.user.findUnique({ where: { email } });
         if (!user) {
-          throw new Error('No user found with this email');
+          throw new Error('Email or password is incorrect');
         }
 
-        // Verify password
         const isValid = await bcrypt.compare(password, user.password);
         if (!isValid) {
-          throw new Error('Invalid password');
+          throw new Error('Email or password is incorrect');
         }
 
-        // Return user object
         return { id: user.id.toString(), name: user.name, email: user.email };
       },
     }),
   ],
   pages: {
-    signIn: '/signin', // Custom sign-in page
+    signIn: '/signin',
   },
   session: {
-    strategy: 'jwt', // Use JWT for session
+    strategy: 'jwt',
   },
   secret: process.env.NEXTAUTH_SECRET,
+  callbacks: {
+    async signIn({ user }){
+      if(user?.error) {
+        throw new Error(user.error)
+      }
+      return true
+    }
+  }
 });
 
 export {handler as GET, handler as POST};

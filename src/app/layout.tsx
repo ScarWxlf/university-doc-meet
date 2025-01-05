@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import NextAuthSessionProvider from "@/providers/SessionProvider";
+import { ToastContainer } from "react-toastify";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -17,6 +18,7 @@ export default function RootLayout({
       <body className="flex flex-col h-screen flex-grow">
         <NextAuthSessionProvider>
           {children}
+          <ToastContainer/>
         </NextAuthSessionProvider>
       </body>
     </html>

@@ -6,26 +6,30 @@ const prisma = new PrismaClient();
 
 export async function POST(req: NextRequest) {
     const body = await req.json();
-    const { email, password, name } = body
-    
-    // Check if user already exists
-    const existingUser = await prisma.user.findUnique({ where: { email } });
-    if (existingUser) {
-        return NextResponse.json({message: 'User already exists'}, {status: 400})
-    } 
-    
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
-    
-    // Create new user
-    const newUser = await prisma.user.create({
-        data: {
-            email,
-            name,
-            password: hashedPassword,
-            role: 'user',
-        },
-    });
+    const { email, password, name } = body;
+    try {
+        const existingUser = await prisma.user.findUnique({ where: { email } });
+        if (existingUser) {
+            return NextResponse.json({message: 'Email already exists'}, {status: 400})
+        } 
+        
+        const hashedPassword = await bcrypt.hash(password, 10);
+        
+        await prisma.user.create({
+            data: {
+                email,
+                name,
+                password: hashedPassword,
+                role: 'user',
+            },
+        });
+        return NextResponse.json({message: 'User created'}, {status: 201})
+    } catch (error) {
+        let errorMessage = 'Something went wrong';
+        if (error instanceof Error) {
+            errorMessage = error.message;
+        }
+        return NextResponse.json({message: errorMessage}, {status: 500})
+    }
 
-    return NextResponse.json({message: 'User created', user: newUser}, {status: 201})
 }

@@ -4,13 +4,16 @@ import Link from "next/link";
 import { Button, buttonVariants } from "@/components/button";
 import { cn } from "@/lib/utils";
 import DecorativeFileSection from "@/components/DecorativeFileSection";
-import { FormEvent, useState } from "react"
+import { FormEvent, useState } from "react";
 import { registerSchema } from "@/lib/validator";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import { z } from "zod";
+import { signIn } from "next-auth/react";
 
 export default function SignUp() {
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState<Record<string, string[] | undefined>>(
+    {}
+  );
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -20,33 +23,42 @@ export default function SignUp() {
     const confirmPassword = data.get("confirmPassword");
     const name = data.get("name");
     try {
+      setErrors({});
       registerSchema.parse({ email, password, confirmPassword, name });
+      const response = await fetch("/api/auth/signup", {
+        method: "POST",
+        body: JSON.stringify({
+          email,
+          password,
+          name,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const responseJson = await response.json();
+      if (!response.ok) {
+        toast.error(responseJson.message, {
+          position: "bottom-right",
+        });
+        return;
+      }
+      await signIn("credentials", { email, password, callbackUrl: "/?loginSuccess=true" });
     } catch (error) {
       if (error instanceof z.ZodError) {
         const fieldErrors = error.flatten().fieldErrors;
         setErrors(fieldErrors);
+      }else{
+        toast.error((error as Error).message, {
+          position: "bottom-right",
+        });
       }
     }
 
-    return;
-
-    const response = await fetch("/api/auth/signup", {
-      method: "POST",
-      body: JSON.stringify({
-        email,
-        password,
-        name,
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-    const responseJson = await response.json();
-    console.log(responseJson);
   };
 
   return (
-    <div className="flex flex-col lg:flex-row flex-grow lg:overflow-hidden">
+    <div className="flex flex-col lg:flex-row flex-grow">
       <DecorativeFileSection bgImage="/images/signup-bg.png" />
       <div className="h-full w-full lg:w-3/5 p-10 flex-grow flex flex-col">
         <div className="flex justify-between items-center">
@@ -73,7 +85,7 @@ export default function SignUp() {
                 <h2 className="text-xl">Getting started is easy</h2>
               </div>
               <div className="flex gap-2">
-                <Button variant="outline" className="flex items-center gap-2">
+                <Button variant="outline" className="flex items-center gap-2" onClick={() => signIn('google', {callbackUrl: '/?loginSuccess=true'})}>
                   <Image
                     src="/images/google.svg"
                     width={20}
@@ -102,7 +114,14 @@ export default function SignUp() {
                 className="border-2 border-gray-300 rounded-md p-2 my-2 w-full"
               />
               {errors?.name && (
-                <div className="text-red-500 text-sm">{errors.name}</div>
+                <div className="flex flex-col text-red-500 text-sm text-start w-full">
+                  {errors.name.map((error) => (
+                    <div key={error} className="flex items-center gap-2">
+                      <div className="h-1 w-1 rounded-full bg-black"></div>
+                      <div className="my-1">{error}</div>
+                    </div>
+                  ))}
+                </div>
               )}
               <input
                 name="email"
@@ -110,6 +129,16 @@ export default function SignUp() {
                 placeholder="Email"
                 className="border-2 border-gray-300 rounded-md p-2 my-2 w-full"
               />
+              {errors?.email && (
+                <div className="flex flex-col text-red-500 text-sm text-start w-full">
+                  {errors.email.map((error) => (
+                    <div key={error} className="flex items-center gap-2">
+                      <div className="h-1 w-1 rounded-full bg-black"></div>
+                      <div className="my-1">{error}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
               <input
                 name="password"
                 type="password"
@@ -117,7 +146,14 @@ export default function SignUp() {
                 className="border-2 border-gray-300 rounded-md p-2 my-2 w-full"
               />
               {errors?.password && (
-                <div className="text-red-500 text-sm">{errors.password}</div>
+                <div className="flex flex-col text-red-500 text-sm text-start w-full">
+                  {errors.password.map((error) => (
+                    <div key={error} className="flex items-center gap-2">
+                      <div className="h-1 w-1 rounded-full bg-black"></div>
+                      <div className="my-1">{error}</div>
+                    </div>
+                  ))}
+                </div>
               )}
               <input
                 name="confirmPassword"
@@ -125,11 +161,21 @@ export default function SignUp() {
                 placeholder="Confirm Password"
                 className="border-2 border-gray-300 rounded-md p-2 my-2 w-full"
               />
+              {errors.confirmPassword && (
+                <div className="flex flex-col text-red-500 text-sm text-start w-full">
+                  {errors.confirmPassword.map((error) => (
+                    <div key={error} className="flex items-center gap-2">
+                      <div className="h-1 w-1 rounded-full bg-black"></div>
+                      <div className="my-1">{error}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
               <Button
                 type="submit"
                 variant="default"
                 size="default"
-                className="w-full"
+                className="w-full mt-3 mb-4"
               >
                 Sign Up
               </Button>
@@ -139,7 +185,6 @@ export default function SignUp() {
             By continuing you indicate that you read and agreed to the Terms of
             Use
           </div>
-          <ToastContainer />
         </div>
       </div>
     </div>
