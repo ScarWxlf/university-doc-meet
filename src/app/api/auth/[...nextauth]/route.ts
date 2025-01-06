@@ -29,12 +29,12 @@ const handler = NextAuth({
           throw new Error('Email or password is incorrect');
         }
 
-        const isValid = await bcrypt.compare(password, user.password);
+        const isValid = await bcrypt.compare(password, user!.password!);
         if (!isValid) {
           throw new Error('Email or password is incorrect');
         }
 
-        return { id: user.id.toString(), name: user.name, email: user.email };
+        return { id: user.id.toString(), name: user.name, email: user.email, image: user.image };
       },
     }),
   ],
@@ -46,11 +46,59 @@ const handler = NextAuth({
   },
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
-    async signIn({ user }){
-      if(user?.error) {
-        throw new Error(user.error)
+    async signIn({ account, profile }) {
+      if (account!.provider === 'google') {
+        const existingUser = await prisma.user.findUnique({
+          where: { email: profile!.email },
+        });
+    
+        if (existingUser) {
+          if (!existingUser.password) {
+            await prisma.user.update({
+              where: { email: profile!.email },
+              data: {
+                name: profile!.name,
+                image: profile!.picture,
+              },
+            });
+          } else {
+            return true;
+          }
+        } else {
+          await prisma.user.create({
+            data: {
+              email: profile!.email!,
+              name: profile!.name || 'Anonymous',
+              role: 'user',
+              image: profile!.picture,
+              password: null,
+            },
+          });
+        }
       }
-      return true
+      return true;
+    },
+    async jwt({ token, user, account, profile }) {
+      if (account?.provider === 'google') {
+        const dbUser = await prisma.user.findUnique({
+          where: { email: profile!.email },
+        });
+        if (dbUser) {
+          token.name = dbUser.name;
+          token.sub = dbUser.id.toString();
+          token.picture = dbUser.image;
+        }
+      }
+  
+      return token;
+    },
+    async session({ session, token }) {
+      session.user = {
+        ...session.user,
+        id: token.sub, // ID з токена
+        name: token.name, // Ім'я з токена
+      };
+      return session
     }
   }
 });

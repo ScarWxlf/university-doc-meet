@@ -21,6 +21,7 @@ export async function POST(req: NextRequest) {
                 name,
                 password: hashedPassword,
                 role: 'user',
+                image: '/images/default-avatar.svg',
             },
         });
         return NextResponse.json({message: 'User created'}, {status: 201})

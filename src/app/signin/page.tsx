@@ -22,6 +22,7 @@ export default function SignIn() {
     const password = data.get("password");
 
     try {
+      setErrors({});
       loginSchema.parse({ email, password });
       const response = await signIn('credentials', { email, password, redirect: false});
       if(response?.error){
@@ -46,10 +47,10 @@ export default function SignIn() {
     <div className="flex flex-col lg:flex-row flex-grow lg:overflow-hidden">
       <div className="h-full w-full lg:w-3/5 p-10 flex flex-grow flex-col order-1 lg:-order-1">
         <div className="flex justify-between items-center">
-          <div className="flex gap-2 text-xl font-medium">
+          <Link className="flex gap-2 text-xl font-medium" href='/'>
             <Image src="/images/logo.svg" width={30} height={30} alt="logo" />
-            Logo Here
-          </div>
+            DMS
+          </Link>
           <div className="text-sm">
             <span>Don&apos;t have an account?</span>
             <Link
@@ -123,7 +124,7 @@ export default function SignIn() {
               size="default"
               className="w-full mt-3 mb-4"
             >
-              Sign Up
+              Sign In
             </Button>
           </form>
         </div>

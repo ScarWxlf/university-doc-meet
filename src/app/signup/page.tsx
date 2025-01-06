@@ -62,10 +62,10 @@ export default function SignUp() {
       <DecorativeFileSection bgImage="/images/signup-bg.png" />
       <div className="h-full w-full lg:w-3/5 p-10 flex-grow flex flex-col">
         <div className="flex justify-between items-center">
-          <div className="flex gap-2 text-xl font-medium">
+          <Link className="flex gap-2 text-xl font-medium" href='/'>
             <Image src="/images/logo.svg" width={30} height={30} alt="logo" />
-            Logo Here
-          </div>
+            DMS
+          </Link>
           <div className="text-sm">
             <span>Have an account?</span>
             <Link

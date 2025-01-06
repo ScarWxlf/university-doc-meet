@@ -19,7 +19,8 @@ model User {
   role      String
   name  String
   email     String  @unique
-  password  String
+  password  String?
+  image String?
   documents Document[] @relation("CreatedDocuments")
   meetings  Meeting[] @relation("MeetingParticipants")
 }
@@ -30,7 +31,7 @@ model Document {
   content     String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  createdBy   User     @relation("CreatedDocuments", fields: [createdById], references: [id])
+  createdBy   User     @relation("CreatedDocuments", fields: [createdById], references: [id], onDelete: Cascade)
   createdById Int
 }
 
