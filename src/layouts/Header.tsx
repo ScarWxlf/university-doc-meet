@@ -1,13 +1,19 @@
-'use client'
+import { getServerSession } from "next-auth";
+import { headers } from 'next/headers';
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import LogOut from "@/components/logOut";
 
-export default function Header() {
-    const pathname = usePathname();
-    if (pathname === '/signin' || pathname === '/signup') {
-        return null;
-    }
+export default async function Header() {
+  const session = await getServerSession();
+
+  const headersList = await headers();
+  const pathname = headersList.get('x-pathname');
+
+  if(pathname === '/signin' || pathname === '/signup'){
+    return null;
+  }
+
   return (
     <header className="flex items-center justify-between h-20 px-4 py-3 bg-white shadow-md">
       <Link className="flex items-center" href='/'>
@@ -15,18 +21,31 @@ export default function Header() {
         <h1 className="ml-2 text-xl font-semibold">DMS</h1>
       </Link>
       <nav>
-        <ul className="flex space-x-4">
-          <li>
-            <Link href="/signin">
-              Sign In
-            </Link>
-          </li>
-          <li>
-            <Link href="/signup">
-              Sign Up
-            </Link>
-          </li>
-        </ul>
+        {session ? (
+          <ul className="flex space-x-4">
+            <li>
+            <Link href="/profile">
+                Profile
+              </Link>
+            </li>
+            <li>
+              <LogOut />
+            </li>
+          </ul>
+          ) : (
+            <ul className="flex space-x-4">
+              <li>
+                <Link href="/signin">
+                  Sign In
+                </Link>
+              </li>
+              <li>
+                <Link href="/signup">
+                  Sign Up
+                </Link>
+              </li>
+            </ul>
+          )}
       </nav>
     </header>
   );
