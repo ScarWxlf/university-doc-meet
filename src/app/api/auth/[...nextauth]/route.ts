@@ -3,6 +3,7 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
+import { createUserFolderIfNotExists } from '@/lib/googleDriveUtils';
 
 const prisma = new PrismaClient();
 
@@ -46,7 +47,8 @@ const handler = NextAuth({
   },
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
-    async signIn({ account, profile }) {
+    async signIn({ account, profile, user }) {
+      let userId;
       if (account!.provider === 'google') {
         const existingUser = await prisma.user.findUnique({
           where: { email: profile!.email },
@@ -64,8 +66,9 @@ const handler = NextAuth({
           } else {
             return true;
           }
+          userId = existingUser.id;
         } else {
-          await prisma.user.create({
+          const newUser = await prisma.user.create({
             data: {
               email: profile!.email!,
               name: profile!.name || 'Anonymous',
@@ -74,8 +77,16 @@ const handler = NextAuth({
               password: null,
             },
           });
+          userId = newUser.id;
         }
+      }else if (user) {
+        userId = user.id;
       }
+
+      if (userId) {
+        await createUserFolderIfNotExists(userId.toString());
+      }
+
       return true;
     },
     async jwt({ token, user, account, profile }) {
@@ -95,8 +106,8 @@ const handler = NextAuth({
     async session({ session, token }) {
       session.user = {
         ...session.user,
-        id: token.sub, // ID з токена
-        name: token.name, // Ім'я з токена
+        id: token.sub,
+        name: token.name,
       };
       return session
     }

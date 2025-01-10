@@ -1,12 +1,14 @@
 'use client'
 import { Button } from '@/components/button';
 import DocumentCard from '@/components/DocumentCard';
+import UploadModal from '@/components/UploadDocModal';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
 export default function Home() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { data: session, status } = useSession();
 
   useEffect(() => {
@@ -24,14 +26,17 @@ export default function Home() {
 
 
   return (
-    <div className="flex flex-col px-8 h-full bg-gray-200">
+    <div className="flex flex-col px-8 bg-gray-100">
       <div className='p-6'>
         <h1 className='text-3xl text-gray-700 font-medium'>Document manegment</h1>
         <div className='flex justify-between mt-4'>
-            <Button className='rounded-full flex gap-2' variant='default' size='default'>
+            <Button className='rounded-full flex gap-2' variant='default' size='default' onClick={() => setIsModalOpen(true)}>
               <Image src='/images/add-doc-button.svg' width={20} height={20} alt='add document' />
               Add New Document
             </Button>
+            {isModalOpen && (
+              <UploadModal onClose={() => setIsModalOpen(false)} />
+            )}
             <div className='relative flex'>
               {/* search */}
               <Image className='absolute top-1/2 -translate-y-1/2 left-1' src='/images/search.svg' width={20} height={20} alt='search' />
@@ -47,6 +52,20 @@ export default function Home() {
           <p className='w-1/5 text-center'>Last Modified</p>
           <p className='w-1/5 text-center'>Actions</p>
         </div>
+        <DocumentCard />
+        <DocumentCard />
+        <DocumentCard />
+        <DocumentCard />
+        <DocumentCard />
+        <DocumentCard />
+        <DocumentCard />
+        <DocumentCard />
+        <DocumentCard />
+        <DocumentCard />
+        <DocumentCard />
+        <DocumentCard />
+        <DocumentCard />
+        <DocumentCard />
         <DocumentCard />
         <DocumentCard />
       </div>
