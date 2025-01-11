@@ -1,9 +1,10 @@
 'use server'
 import { drive } from "@/lib/google";
 
+const rootFolderId = process.env.ROOT_FOLDER!;
+
 export async function createUserFolderIfNotExists(userId: string) {
   try {
-    const rootFolderId = process.env.ROOT_FOLDER!;
     const response = await drive.files.list({
       q: `'${rootFolderId}' in parents and name = 'user-${userId}' and mimeType = 'application/vnd.google-apps.folder'`,
       fields: "files(id, name)",

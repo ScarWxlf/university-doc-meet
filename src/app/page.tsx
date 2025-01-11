@@ -8,6 +8,8 @@ import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
 export default function Home() {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { data: session, status } = useSession();
 
@@ -22,7 +24,26 @@ export default function Home() {
       url.searchParams.delete('loginSuccess');
       window.history.replaceState({}, '', url.toString());
     }
-  });
+
+    async function getFiles() {
+      setLoading(true);
+      if(status !== 'loading'){
+        const response = await fetch('/api/google/getfiles', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId: session?.user?.id,
+          }),
+        })
+        const data = await response.json();
+        setData(data.files);
+        setLoading(false);
+      }
+    }
+    getFiles();
+  }, [session, status, isModalOpen]);
 
 
   return (
@@ -35,7 +56,7 @@ export default function Home() {
               Add New Document
             </Button>
             {isModalOpen && (
-              <UploadModal onClose={() => setIsModalOpen(false)} />
+              <UploadModal userId={session?.user?.id} onClose={() => setIsModalOpen(false)} />
             )}
             <div className='relative flex'>
               {/* search */}
@@ -52,22 +73,16 @@ export default function Home() {
           <p className='w-1/5 text-center'>Last Modified</p>
           <p className='w-1/5 text-center'>Actions</p>
         </div>
-        <DocumentCard />
-        <DocumentCard />
-        <DocumentCard />
-        <DocumentCard />
-        <DocumentCard />
-        <DocumentCard />
-        <DocumentCard />
-        <DocumentCard />
-        <DocumentCard />
-        <DocumentCard />
-        <DocumentCard />
-        <DocumentCard />
-        <DocumentCard />
-        <DocumentCard />
-        <DocumentCard />
-        <DocumentCard />
+        { loading ? 
+        <div className="m-4 flex items-center justify-center">
+        <div className="loader w-6 h-6 border-4 border-t-transparent border-green-500 rounded-full animate-spin"></div>
+        <span className="ml-2 text-gray-500">Loading...</span>
+      </div>
+      :
+        data && data.map((file, index) => (
+          <DocumentCard key={index} file={file} />
+        ))
+      }
       </div>
     </div>
   );
