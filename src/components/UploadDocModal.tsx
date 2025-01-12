@@ -1,9 +1,16 @@
-'use client'
 import { FiUpload } from "react-icons/fi";
 import { AiOutlineCloseCircle } from "react-icons/ai";
 import { PiPlusBold } from "react-icons/pi";
 import { toast } from "react-toastify";
 import { useState } from "react";
+
+const ALLOWED_MIME_TYPES = [
+  "text/plain", // TXT
+  "application/pdf", // PDF
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // DOCX
+  "application/rtf", // RTF
+  "text/html", // HTML
+];
 
 export default function UploadModal({ onClose, userId }: { onClose: () => void, userId: string }) {
   const [loading, setLoading] = useState(false);
@@ -14,6 +21,20 @@ export default function UploadModal({ onClose, userId }: { onClose: () => void, 
 
     if (!file) {
       toast.error("No file selected.");
+      setLoading(false);
+      return;
+    }
+
+    if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+      toast.error("Unsupported file type. Supported formats: TXT, PDF, DOCX, RTF, HTML.");
+      setLoading(false);
+      return;
+    }
+
+    const MAX_FILE_SIZE = 10 * 1024 * 1024;
+    if (file.size > MAX_FILE_SIZE) {
+      toast.error("File size exceeds the limit of 10MB.");
+      setLoading(false);
       return;
     }
 

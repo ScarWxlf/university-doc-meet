@@ -1,6 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import 'quill/dist/quill.snow.css';
 
 .shadow-filter {
   filter: drop-shadow(10px 10px 15px rgba(0, 0, 0, 0.5));

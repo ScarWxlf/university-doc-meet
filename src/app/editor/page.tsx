@@ -1,0 +1,110 @@
+'use client';
+
+import { useEffect, useState, useRef } from "react";
+import { useSearchParams } from "next/navigation";
+import { Button } from "@/components/button";
+import Quill, { Delta } from "quill";
+
+export default function Editor() {
+  const searchParams = useSearchParams();
+  const fileId = searchParams.get("fileId");
+  const [fileName, setFileName] = useState("");
+  const editorRef = useRef<HTMLDivElement>(null);
+  const quillRef = useRef<Quill | null>(null);
+
+  const isDelta = (content: any): boolean => {
+    return typeof content === 'object' && content !== null && Array.isArray(content.ops);
+  };
+
+  useEffect(() => {
+    if (editorRef.current && !quillRef.current) {
+      const quillInstance = new Quill(editorRef.current, {
+        theme: "snow",
+        modules: {
+          toolbar: [
+            [{ header: [1, 2, 3, false] }],
+            ["bold", "italic", "underline", "strike"],
+            [{ list: "ordered" }, { list: "bullet" }],
+            ["link", "image"],
+            ["clean"],
+          ],
+        },
+      });
+      quillRef.current = quillInstance;
+    }
+
+    async function fetchFile() {
+      try {
+        const response = await fetch("/api/google/getfilecontent", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ fileId }),
+        });
+
+        if (response.ok) {
+            const { content, name } = await response.json();
+            setFileName(name);
+            console.log(content);
+            console.log(typeof content);
+            const parsedContent = typeof content === 'string' ? content : JSON.stringify(content);
+            const deltaContent = typeof content === 'string' && JSON.parse(parsedContent);
+            if(isDelta(deltaContent)) {
+                console.log("aaaa")
+                quillRef.current?.setContents(deltaContent);
+            } else {
+                quillRef.current?.setContents(new Delta().insert(parsedContent));
+                // quillRef.current?.clipboard.dangerouslyPasteHTML(content) for HTML content
+            }
+          } else {
+          console.error("Failed to fetch file content");
+        }
+      } catch (error) {
+        console.error("Error fetching file content:", error);
+      }
+    }
+
+    if (fileId) {
+      fetchFile();
+    }
+  }, [fileId]);
+
+  const handleSave = async () => {
+    try {
+      const content = quillRef.current?.getContents();
+      const response = await fetch("/api/google/updatefile", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          fileId,
+          content: content,
+        }),
+      });
+
+      if (response.ok) {
+        alert("File saved successfully!");
+      } else {
+        console.error("Failed to save file");
+      }
+    } catch (error) {
+      console.error("Error saving file:", error);
+    }
+  };
+
+  return (
+    <div className="p-4">
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-xl font-bold">{fileName || "Untitled Document"}</h1>
+        <Button variant="default" size="default" onClick={handleSave}>
+          Save
+        </Button>
+      </div>
+      <div className="border p-4 rounded-lg shadow">
+        <div ref={editorRef} className="h-[500px]"></div>
+      </div>
+    </div>
+  );
+}

@@ -13,6 +13,7 @@ const buttonVariants = cva(
         outline:
           "border border-gray-400 bg-background hover:scale-105 text-black",
         link: "text-green-500 underline-offset-2 hover:underline",
+        fileAction: 'text-gray-500 hover:text-green-500 hover:scale-105',
       },
       size: {
         default: "h-10 px-4 py-2",
@@ -20,6 +21,7 @@ const buttonVariants = cva(
         sm: "h-9 rounded-md px-3",
         lg: "h-11 rounded-md px-8",
         icon: "h-10 w-10",
+        fileAction: 'h-6 w-6',
       },
     },
     defaultVariants: {
