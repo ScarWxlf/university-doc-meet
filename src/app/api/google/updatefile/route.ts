@@ -3,7 +3,7 @@ import { drive } from "@/lib/google";
 
 export async function POST(req: Request) {
   try {
-    const { fileId, content } = await req.json();
+    const { fileId, content, mimeType } = await req.json();
 
     await drive.files.update({
       fileId,

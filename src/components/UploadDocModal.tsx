@@ -6,9 +6,7 @@ import { useState } from "react";
 
 const ALLOWED_MIME_TYPES = [
   "text/plain", // TXT
-  "application/pdf", // PDF
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // DOCX
-  "application/rtf", // RTF
   "text/html", // HTML
   "application/json", // JSON
 ];

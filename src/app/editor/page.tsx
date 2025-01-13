@@ -48,10 +48,11 @@ export default function Editor() {
             const { content, name, mimeType } = await response.json();
             setFileName(name);
             setMimeType(mimeType);
-            
             const parsedContent = typeof content === "string" ? content : JSON.stringify(content);
-            if (["text/plain", "text/html", "application/json"].includes(mimeType)) {
-              console.log("aaa")
+            if (["application/vnd.openxmlformats-officedocument.wordprocessingml.document", "text/html"].includes(mimeType)) {
+              quillRef.current?.enable();
+              quillRef.current?.clipboard.dangerouslyPasteHTML(content);
+            } else if (["text/plain", "application/json"].includes(mimeType)) {
               quillRef.current?.disable();
               quillRef.current?.setText(parsedContent);
             } else {
@@ -74,10 +75,10 @@ export default function Editor() {
 
   const handleSave = async () => {
     try {
-      const isSimpleText = ["text/plain", "text/html", "application/json"].includes(mimeType);
+      const isSimpleText = ["text/plain", "application/json"].includes(mimeType);
     const content = isSimpleText
-      ? quillRef.current?.getText() // Отримати простий текст
-      : quillRef.current?.getContents(); // Отримати форматований контент (Delta)
+      ? quillRef.current?.getText()
+      : quillRef.current?.getContents();
       const response = await fetch("/api/google/updatefile", {
         method: "POST",
         headers: {
@@ -85,6 +86,7 @@ export default function Editor() {
         },
         body: JSON.stringify({
           fileId,
+          mimeType,
           content: content,
         }),
       });
