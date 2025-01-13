@@ -10,6 +10,7 @@ const ALLOWED_MIME_TYPES = [
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // DOCX
   "application/rtf", // RTF
   "text/html", // HTML
+  "application/json", // JSON
 ];
 
 export default function UploadModal({ onClose, userId }: { onClose: () => void, userId: string }) {

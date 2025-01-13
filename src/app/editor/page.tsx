@@ -9,6 +9,7 @@ export default function Editor() {
   const searchParams = useSearchParams();
   const fileId = searchParams.get("fileId");
   const [fileName, setFileName] = useState("");
+  const [mimeType, setMimeType] = useState("");
   const editorRef = useRef<HTMLDivElement>(null);
   const quillRef = useRef<Quill | null>(null);
 
@@ -44,18 +45,19 @@ export default function Editor() {
         });
 
         if (response.ok) {
-            const { content, name } = await response.json();
+            const { content, name, mimeType } = await response.json();
             setFileName(name);
-            console.log(content);
-            console.log(typeof content);
-            const parsedContent = typeof content === 'string' ? content : JSON.stringify(content);
-            const deltaContent = typeof content === 'string' && JSON.parse(parsedContent);
-            if(isDelta(deltaContent)) {
-                console.log("aaaa")
-                quillRef.current?.setContents(deltaContent);
+            setMimeType(mimeType);
+            
+            const parsedContent = typeof content === "string" ? content : JSON.stringify(content);
+            if (["text/plain", "text/html", "application/json"].includes(mimeType)) {
+              console.log("aaa")
+              quillRef.current?.disable();
+              quillRef.current?.setText(parsedContent);
             } else {
-                quillRef.current?.setContents(new Delta().insert(parsedContent));
-                // quillRef.current?.clipboard.dangerouslyPasteHTML(content) for HTML content
+              const deltaContent = isDelta(parsedContent) ? JSON.parse(parsedContent) : new Delta().insert(parsedContent);
+              quillRef.current?.enable();
+              quillRef.current?.setContents(deltaContent);
             }
           } else {
           console.error("Failed to fetch file content");
@@ -72,7 +74,10 @@ export default function Editor() {
 
   const handleSave = async () => {
     try {
-      const content = quillRef.current?.getContents();
+      const isSimpleText = ["text/plain", "text/html", "application/json"].includes(mimeType);
+    const content = isSimpleText
+      ? quillRef.current?.getText() // Отримати простий текст
+      : quillRef.current?.getContents(); // Отримати форматований контент (Delta)
       const response = await fetch("/api/google/updatefile", {
         method: "POST",
         headers: {

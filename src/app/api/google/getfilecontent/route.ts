@@ -12,13 +12,14 @@ export async function POST(req: Request) {
 
     const metadata = await drive.files.get({
       fileId,
-      fields: "name",
+      fields: "name, mimeType",
     });
     // console.log(response.data);
 
     return NextResponse.json({
       content: response.data,
       name: metadata.data.name,
+      mimeType: metadata.data.mimeType,
     });
   } catch (error) {
     console.error("Error fetching file content:", error);
