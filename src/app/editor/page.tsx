@@ -1,10 +1,13 @@
-'use client';
+"use client";
 
 import { useEffect, useState, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/button";
-import Quill, { Delta } from "quill";
+import Quill from "quill";
 import * as quillToWord from "quill-to-word";
+import { toast } from "react-toastify";
+import { cn } from "@/lib/utils";
+import Loading from "@/components/loading";
 
 export default function Editor() {
   const searchParams = useSearchParams();
@@ -14,9 +17,7 @@ export default function Editor() {
   const editorRef = useRef<HTMLDivElement>(null);
   const quillRef = useRef<Quill | null>(null);
 
-  const isDelta = (content: any): boolean => {
-    return typeof content === 'object' && content !== null && Array.isArray(content.ops);
-  };
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (editorRef.current && !quillRef.current) {
@@ -37,6 +38,7 @@ export default function Editor() {
 
     async function fetchFile() {
       try {
+        setLoading(true);
         const response = await fetch("/api/google/getfilecontent", {
           method: "POST",
           headers: {
@@ -46,22 +48,28 @@ export default function Editor() {
         });
 
         if (response.ok) {
-            const { content, name, mimeType } = await response.json();
-            setFileName(name);
-            setMimeType(mimeType);
-            const parsedContent = typeof content === "string" ? content : JSON.stringify(content);
-            if (["application/vnd.openxmlformats-officedocument.wordprocessingml.document", "text/html"].includes(mimeType)) {
-              quillRef.current?.enable();
-              quillRef.current?.clipboard.dangerouslyPasteHTML(content);
-            } else if (["text/plain", "application/json"].includes(mimeType)) {
-              quillRef.current?.disable();
-              quillRef.current?.setText(parsedContent);
-            } else {
-              const deltaContent = isDelta(parsedContent) ? JSON.parse(parsedContent) : new Delta().insert(parsedContent);
-              quillRef.current?.enable();
-              quillRef.current?.setContents(deltaContent);
-            }
-          } else {
+          const { content, name, mimeType } = await response.json();
+          setFileName(name);
+          setMimeType(mimeType);
+          const parsedContent =
+            typeof content === "string" ? content : JSON.stringify(content);
+          if (
+            [
+              "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+              "text/html",
+            ].includes(mimeType)
+          ) {
+            quillRef.current?.enable();
+            quillRef.current?.clipboard.dangerouslyPasteHTML(content);
+          } else if (["text/plain", "application/json"].includes(mimeType)) {
+            const toolbar = document.querySelector(".ql-toolbar");
+            toolbar?.classList.add("disabled-toolbar");
+            toolbar?.setAttribute("data-tooltip", "Editing is disabled");
+            quillRef.current?.disable();
+            quillRef.current?.setText(parsedContent);
+          }
+          setLoading(false);
+        } else {
           console.error("Failed to fetch file content");
         }
       } catch (error) {
@@ -69,17 +77,19 @@ export default function Editor() {
       }
     }
 
-    if (fileId) {
-      fetchFile();
-    }
+    fetchFile();
   }, [fileId]);
 
   const handleSave = async () => {
     try {
-      const isSimpleText = ["text/plain", "application/json"].includes(mimeType);
-    const isHTML = mimeType === "text/html";
-    const isDOCX = mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-    let content;
+      const isSimpleText = ["text/plain", "application/json"].includes(
+        mimeType
+      );
+      const isHTML = mimeType === "text/html";
+      const isDOCX =
+        mimeType ===
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+      let content;
 
       if (isSimpleText) {
         content = quillRef.current?.getText();
@@ -87,13 +97,11 @@ export default function Editor() {
         content = quillRef.current?.root.innerHTML;
       } else if (isDOCX) {
         const delta = quillRef.current!.getContents();
-        const config = {
+        const config: quillToWord.Config = {
           exportAs: "base64",
         };
         content = await quillToWord.generateWord(delta, config);
       }
-      // console.log(content);
-      // return;
 
       const response = await fetch("/api/google/updatefile", {
         method: "POST",
@@ -108,25 +116,33 @@ export default function Editor() {
       });
 
       if (response.ok) {
-        alert("File saved successfully!");
+        toast.success("File saved successfully!");
       } else {
-        console.error("Failed to save file");
+        toast.error("Failed to save file");
       }
     } catch (error) {
-      console.error("Error saving file:", error);
+      toast.error("Error saving file:" + (error as Error).message);
     }
   };
 
   return (
     <div className="p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-xl font-bold">{fileName || "Untitled Document"}</h1>
-        <Button variant="default" size="default" onClick={handleSave}>
-          Save
-        </Button>
-      </div>
-      <div className="border p-4 rounded-lg shadow">
-        <div ref={editorRef} className="h-[500px]"></div>
+      {loading && <Loading />}
+      <div className={cn(loading && "hidden")}>
+        <div
+          className={cn(
+            "flex justify-between items-center mb-4",
+            loading && "hidden"
+          )}
+        >
+          <h1 className="text-xl font-bold">{fileName}</h1>
+          <Button variant="default" size="default" onClick={handleSave}>
+            Save
+          </Button>
+        </div>
+        <div className="border p-4 rounded-lg shadow">
+          <div ref={editorRef} className="h-[500px]"></div>
+        </div>
       </div>
     </div>
   );

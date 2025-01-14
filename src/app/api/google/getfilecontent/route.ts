@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
-import { drive } from "@/lib/google";
 import mammoth from "mammoth";
+import { Readable } from "stream";
+import { drive } from "@/lib/google";
 
-async function streamToBuffer(stream: any): Promise<Buffer> {
+async function streamToBuffer(stream: Readable): Promise<Buffer> {
   const chunks: Buffer[] = [];
   for await (const chunk of stream) {
     chunks.push(Buffer.from(chunk));
