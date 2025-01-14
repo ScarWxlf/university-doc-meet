@@ -1,17 +1,29 @@
 import { NextResponse } from "next/server";
 import { drive } from "@/lib/google";
+import { Readable } from "stream";
 
 export async function POST(req: Request) {
   try {
     const { fileId, content, mimeType } = await req.json();
 
-    await drive.files.update({
-      fileId,
-      media: {
-        mimeType: "text/plain",
-        body: content,
-      },
-    });
+    if( mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document"){
+      const docxBuffer = Readable.from(Buffer.from(content, "base64"));
+      await drive.files.update({
+        fileId,
+        media: {
+          mimeType,
+          body: docxBuffer,
+        },
+      });
+    } else{
+      await drive.files.update({
+        fileId,
+        media: {
+          mimeType,
+          body: content,
+        },
+      });
+    }
 
     return NextResponse.json({ message: "File updated successfully" });
   } catch (error) {

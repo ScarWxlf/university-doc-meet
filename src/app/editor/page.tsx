@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/button";
 import Quill, { Delta } from "quill";
+import * as quillToWord from "quill-to-word";
 
 export default function Editor() {
   const searchParams = useSearchParams();
@@ -76,9 +77,24 @@ export default function Editor() {
   const handleSave = async () => {
     try {
       const isSimpleText = ["text/plain", "application/json"].includes(mimeType);
-    const content = isSimpleText
-      ? quillRef.current?.getText()
-      : quillRef.current?.getContents();
+    const isHTML = mimeType === "text/html";
+    const isDOCX = mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+    let content;
+
+      if (isSimpleText) {
+        content = quillRef.current?.getText();
+      } else if (isHTML) {
+        content = quillRef.current?.root.innerHTML;
+      } else if (isDOCX) {
+        const delta = quillRef.current!.getContents();
+        const config = {
+          exportAs: "base64",
+        };
+        content = await quillToWord.generateWord(delta, config);
+      }
+      // console.log(content);
+      // return;
+
       const response = await fetch("/api/google/updatefile", {
         method: "POST",
         headers: {
