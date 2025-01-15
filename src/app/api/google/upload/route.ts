@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { drive } from "@/lib/google";
 import { Readable } from "stream";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
   try {
@@ -26,18 +29,20 @@ export async function POST(req: Request) {
       body: Readable.from(Buffer.from(content, "base64")),
     };
 
-    // const uploadResponse =
-    await drive.files.create({
+    const uploadResponse = await drive.files.create({
       requestBody: fileMetadata,
       media,
       fields: "id",
     });
 
-    // const fileid = uploadResponse.data.id;
+    await prisma.document.create({
+      data: {
+        googleId: uploadResponse!.data!.id!,
+        createdById: parseInt(userId)
+    }})
 
     return NextResponse.json({ fileName: fileName });
   } catch (error) {
-    console.error("Error uploading file:", error);
     return NextResponse.json({ error: (error as Error).message }, { status: 500 });
   }
 }

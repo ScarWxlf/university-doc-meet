@@ -13,6 +13,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { data: session, status } = useSession();
+  const [documentType, setDocumentType] = useState("my");
 
   useEffect(() => {
     const url = new URL(window.location.href);
@@ -36,6 +37,8 @@ export default function Home() {
           },
           body: JSON.stringify({
             userId: session?.user?.id,
+            userEmail: session?.user?.email,
+            documentType,
           }),
         });
         const data = await response.json();
@@ -44,14 +47,20 @@ export default function Home() {
       }
     }
     getFiles();
-  }, [session, status, isModalOpen]);
+  }, [session, status, isModalOpen, documentType]);
 
   return (
     <div className="flex flex-col px-8 bg-gray-100">
       <div className="p-6">
-        <h1 className="text-3xl text-gray-700 font-medium">
-          Document manegment
-        </h1>
+        <div className="flex gap-2">
+          <h1 className="text-3xl text-gray-700 font-medium">
+            Document manegment
+          </h1>
+          <select className="border rounded-lg px-2 mx-2 py-2 focus:outline-none focus:ring focus:ring-green-200" onChange={(e) => setDocumentType(e.target.value)}>
+            <option value="my">My Documents</option>
+            <option value="shared">Shared Documents</option>
+          </select>
+        </div>
         <div className="flex justify-between mt-4">
           <Button
             className="rounded-full flex gap-2"

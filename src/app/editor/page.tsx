@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useState, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/button";
@@ -8,8 +7,12 @@ import * as quillToWord from "quill-to-word";
 import { toast } from "react-toastify";
 import { cn } from "@/lib/utils";
 import Loading from "@/components/loading";
+import ShareFileModal from "@/components/ShareFileModal";
+import { useSession } from "next-auth/react";
 
 export default function Editor() {
+  const {data: session} = useSession();
+
   const searchParams = useSearchParams();
   const fileId = searchParams.get("fileId");
   const [fileName, setFileName] = useState("");
@@ -18,6 +21,7 @@ export default function Editor() {
   const quillRef = useRef<Quill | null>(null);
 
   const [loading, setLoading] = useState(true);
+  const [shareFileModalOpen, setShareFileModalOpen] = useState(false);
 
   useEffect(() => {
     if (editorRef.current && !quillRef.current) {
@@ -127,6 +131,7 @@ export default function Editor() {
 
   return (
     <div className="p-4">
+      { shareFileModalOpen && <ShareFileModal userId={session!.user!.id} onClose={()=>{setShareFileModalOpen(false)}} documentId={fileId!} /> }
       {loading && <Loading />}
       <div className={cn(loading && "hidden")}>
         <div
@@ -136,6 +141,9 @@ export default function Editor() {
           )}
         >
           <h1 className="text-xl font-bold">{fileName}</h1>
+          <Button variant="default" size="default" onClick={()=>{setShareFileModalOpen(true)}}>
+            Share
+          </Button>
           <Button variant="default" size="default" onClick={handleSave}>
             Save
           </Button>

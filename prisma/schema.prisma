@@ -23,16 +23,24 @@ model User {
   image String?
   documents Document[] @relation("CreatedDocuments")
   meetings  Meeting[] @relation("MeetingParticipants")
+  sharedFiles FileShare[]  @relation("SharedFiles")
 }
 
 model Document {
   id          Int      @id @default(autoincrement())
-  title       String
-  content     String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  googleId    String   @unique
   createdBy   User     @relation("CreatedDocuments", fields: [createdById], references: [id], onDelete: Cascade)
   createdById Int
+  sharedWith  FileShare[]  @relation("SharedDocuments")
+}
+
+model FileShare {
+  id          Int       @id @default(autoincrement())
+  document    Document  @relation("SharedDocuments", fields: [documentId], references: [googleId], onDelete: Cascade)
+  documentId  String
+  user        User      @relation("SharedFiles", fields: [userOwnerId], references: [id], onDelete: Cascade)
+  userOwnerId Int
+  userEmail   String
 }
 
 model Meeting {
