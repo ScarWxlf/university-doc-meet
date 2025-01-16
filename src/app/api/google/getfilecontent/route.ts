@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import mammoth from "mammoth";
 import { Readable } from "stream";
 import { drive } from "@/lib/google";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient()
 
 async function streamToBuffer(stream: Readable): Promise<Buffer> {
   const chunks: Buffer[] = [];
@@ -14,8 +17,29 @@ async function streamToBuffer(stream: Readable): Promise<Buffer> {
 
 export async function POST(req: Request) {
   try {
-    const { fileId } = await req.json();
+    const { fileId, userId, userEmail } = await req.json();
+    if(!userId){
+      console.log("User not found");
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+    const fileOwner = await prisma.document.findFirst({
+      where: {
+        googleId: fileId,
+        createdById: parseInt(userId)
+      }
+    });
+    const fileShared = await prisma.fileShare.findFirst({
+      where: {
+        documentId: fileId,
+        userEmail: userEmail
+      }
+    });
+    console.log(fileShared)
+    if(fileOwner === null && fileShared === null){
+      return NextResponse.redirect(new URL("/", req.url));
+    }
 
+    const isOwner = fileOwner !== null;
     const response = await drive.files.get(
       {
         fileId,
@@ -40,6 +64,7 @@ export async function POST(req: Request) {
       return NextResponse.json({
         content: htmlContent.value,
         name: metadata.data.name,
+        isOwner,
         mimeType,
       });
     }
@@ -49,10 +74,11 @@ export async function POST(req: Request) {
     return NextResponse.json({
       content: fileBuffer.toString("utf-8"),
       name: metadata.data.name,
+      isOwner,
       mimeType,
     });
   } catch (error) {
-    console.error("Error fetching file content:", error);
+    console.log("Error fetching file content:", error);
     return NextResponse.json({ error: "Error fetching file content" }, { status: 500 });
   }
 }

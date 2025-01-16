@@ -110,8 +110,9 @@ export default function Home() {
         {loading ? (
           <Loading />
         ) : (
-          data &&
-          data.map((file, index) => <DocumentCard key={index} file={file} />)
+          (data && data.length > 0) ?
+          (data.map((file, index) => <DocumentCard key={index} file={file} />))
+          : <p className="text-center text-lg p-4">No documents found 😥</p>
         )}
       </div>
     </div>

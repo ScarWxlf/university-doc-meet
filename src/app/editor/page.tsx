@@ -17,6 +17,7 @@ export default function Editor() {
   const fileId = searchParams.get("fileId");
   const [fileName, setFileName] = useState("");
   const [mimeType, setMimeType] = useState("");
+  const [isOwner, setIsOwner] = useState(false);
   const editorRef = useRef<HTMLDivElement>(null);
   const quillRef = useRef<Quill | null>(null);
 
@@ -24,6 +25,9 @@ export default function Editor() {
   const [shareFileModalOpen, setShareFileModalOpen] = useState(false);
 
   useEffect(() => {
+    if(!session){
+      return;
+    }
     if (editorRef.current && !quillRef.current) {
       const quillInstance = new Quill(editorRef.current, {
         theme: "snow",
@@ -48,13 +52,19 @@ export default function Editor() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ fileId }),
+          body: JSON.stringify({ fileId, userId: session?.user?.id, userEmail: session?.user?.email }),
         });
 
+        if (response.redirected) {
+          window.location.href = response.url;
+          return;
+        }
+
         if (response.ok) {
-          const { content, name, mimeType } = await response.json();
+          const { content, name, mimeType, isOwner } = await response.json();
           setFileName(name);
           setMimeType(mimeType);
+          setIsOwner(isOwner);
           const parsedContent =
             typeof content === "string" ? content : JSON.stringify(content);
           if (
@@ -69,12 +79,9 @@ export default function Editor() {
             const toolbar = document.querySelector(".ql-toolbar");
             toolbar?.classList.add("disabled-toolbar");
             toolbar?.setAttribute("data-tooltip", "Editing is disabled");
-            quillRef.current?.disable();
             quillRef.current?.setText(parsedContent);
           }
           setLoading(false);
-        } else {
-          console.error("Failed to fetch file content");
         }
       } catch (error) {
         console.error("Error fetching file content:", error);
@@ -82,7 +89,7 @@ export default function Editor() {
     }
 
     fetchFile();
-  }, [fileId]);
+  }, [fileId, session]);
 
   const handleSave = async () => {
     try {
@@ -141,9 +148,9 @@ export default function Editor() {
           )}
         >
           <h1 className="text-xl font-bold">{fileName}</h1>
-          <Button variant="default" size="default" onClick={()=>{setShareFileModalOpen(true)}}>
+          {isOwner && <Button variant="default" size="default" onClick={()=>{setShareFileModalOpen(true)}}>
             Share
-          </Button>
+          </Button>}
           <Button variant="default" size="default" onClick={handleSave}>
             Save
           </Button>
