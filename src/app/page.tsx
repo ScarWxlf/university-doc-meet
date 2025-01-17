@@ -111,7 +111,7 @@ export default function Home() {
           <Loading />
         ) : (
           (data && data.length > 0) ?
-          (data.map((file, index) => <DocumentCard key={index} file={file} />))
+          (data.map((file, index) => <DocumentCard key={index} file={file} userId={session?.user?.id}/>))
           : <p className="text-center text-lg p-4">No documents found 😥</p>
         )}
       </div>

@@ -1,11 +1,14 @@
 import { FiDownload } from "react-icons/fi";
-import { CgMenuGridO } from "react-icons/cg";
 import { MdEdit } from "react-icons/md";
+import { FaRegTrashAlt } from "react-icons/fa";
 import { Button } from "./button";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 
-export default function DocumentCard({ file }: { file: Record<string, string> }) {
+export default function DocumentCard({ file, userId }: { file: Record<string, string>, userId: string }) {
+    const router = useRouter();
+    const userOwnerId = file.userOwnerId || userId;
 
     const handleDownload = async () => {
         try {
@@ -25,16 +28,34 @@ export default function DocumentCard({ file }: { file: Record<string, string> })
             console.error("Failed to get download link");
           }
         } catch (error) {
-          console.error("Error downloading file:", error);
+          console.error("Error downloading file:", (error as Error).message);
         }
       };
-
-      const router = useRouter();
 
       const handleEdit = () => {
         router.push(`/editor?fileId=${file.id}`);
       };
       
+      const handleDelete = async () => {
+        try {
+          const response = await fetch(`/api/google/deletefile`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ fileId: file.id }),
+          });
+          const data = await response.json();
+          if(response.ok){
+            toast.success(data?.message);
+            router.refresh();
+          } else {
+            toast.error(data?.error);
+          }
+        } catch (error) {
+          console.error("Error deleting file:", (error as Error).message);
+        }
+      }
     return (
         <>
         <div className="h-[1px] bg-gray-400"/>
@@ -55,9 +76,9 @@ export default function DocumentCard({ file }: { file: Record<string, string> })
                 <Button variant='fileAction' size='fileAction' onClick={handleEdit}>
                     <MdEdit size={24}/>
                 </Button>
-                <Button variant='fileAction' size='fileAction'>
-                    <CgMenuGridO size={24} />
-                </Button>
+                {userOwnerId === userId && <Button className="hover:text-red-500" variant='fileAction' size='fileAction' onClick={handleDelete}>
+                    <FaRegTrashAlt size={24} />
+                </Button>}
             </div>
         </div>
         </>

@@ -44,7 +44,10 @@ export async function POST(req: Request) {
         )
       );
 
-      const files = responses.map((response) => response.data);
+      const files = responses.map((response) => ({
+        ...response.data,
+        userOwnerId: sharedFiles[0].userOwnerId.toString(),
+      }));
 
       return NextResponse.json({ files: files });
     }

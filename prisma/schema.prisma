@@ -23,7 +23,8 @@ model User {
   image String?
   documents Document[] @relation("CreatedDocuments")
   meetings  Meeting[] @relation("MeetingParticipants")
-  sharedFiles FileShare[]  @relation("SharedFiles")
+  sharedFiles FileShare[] @relation("SharedFiles")
+  receivedFiles FileShare[] @relation("SharedWith")
 }
 
 model Document {
@@ -38,8 +39,9 @@ model FileShare {
   id          Int       @id @default(autoincrement())
   document    Document  @relation("SharedDocuments", fields: [documentId], references: [googleId], onDelete: Cascade)
   documentId  String
-  user        User      @relation("SharedFiles", fields: [userOwnerId], references: [id], onDelete: Cascade)
+  owner       User      @relation("SharedFiles", fields: [userOwnerId], references: [id], onDelete: Cascade)
   userOwnerId Int
+  sharedWith  User      @relation("SharedWith", fields: [userEmail], references: [email], onDelete: Cascade)
   userEmail   String
 }
 
