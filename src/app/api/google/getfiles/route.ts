@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
   try {
-    const { userId, userEmail, documentType } = await req.json();
+    const { userId, userEmail, documentType, searchName } = await req.json();
     const rootFolderId = process!.env!.ROOT_FOLDER!;
     if (documentType === "my") {
       const folderResponse = await drive.files.list({
@@ -14,9 +14,9 @@ export async function POST(req: Request) {
       });
 
       const userFolderId = folderResponse.data.files?.[0]?.id;
-
+      const query = searchName ? `'${userFolderId}' in parents and name contains '${searchName}'` : `'${userFolderId}' in parents`;
       const response = await drive.files.list({
-        q: `'${userFolderId}' in parents`,
+        q: query,
         fields: "files(id, name, mimeType, createdTime, modifiedTime)",
       });
       return NextResponse.json({ files: response.data.files });
@@ -44,10 +44,16 @@ export async function POST(req: Request) {
         )
       );
 
-      const files = responses.map((response) => ({
+      let files = responses.map((response, index) => ({
         ...response.data,
-        userOwnerId: sharedFiles[0].userOwnerId.toString(),
+        userOwnerId: sharedFiles[index].userOwnerId.toString(),
       }));
+    
+      if (searchName) {
+        files = files.filter((file) =>
+          file!.name!.toLowerCase().includes(searchName.toLowerCase())
+        );
+      }
 
       return NextResponse.json({ files: files });
     }

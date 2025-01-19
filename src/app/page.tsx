@@ -14,6 +14,16 @@ export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { data: session, status } = useSession();
   const [documentType, setDocumentType] = useState("my");
+  const [searchName, setSearchName] = useState("");
+  
+  // const [debouncedSearch, setDebouncedSearch] = useState("");
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     setDebouncedSearch(searchName);
+  //   }, 1000);
+
+  //   return () => clearTimeout(timer);
+  // }, [searchName]);
 
   useEffect(() => {
     const url = new URL(window.location.href);
@@ -39,6 +49,7 @@ export default function Home() {
             userId: session?.user?.id,
             userEmail: session?.user?.email,
             documentType,
+            searchName,
           }),
         });
         const data = await response.json();
@@ -47,7 +58,7 @@ export default function Home() {
       }
     }
     getFiles();
-  }, [session, status, isModalOpen, documentType]);
+  }, [session, status, isModalOpen, documentType, searchName]);
 
   return (
     <div className="flex flex-col px-8 bg-gray-100">
@@ -95,6 +106,8 @@ export default function Home() {
               type="text"
               placeholder="Search"
               className="border-b border-gray-400 px-7 py-1 bg-transparent focus:outline-none focus:border-black"
+              value={searchName}
+              onChange={(e) => setSearchName(e.target.value)}
             />
           </div>
         </div>
