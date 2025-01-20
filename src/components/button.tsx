@@ -14,6 +14,7 @@ const buttonVariants = cva(
           "border border-gray-400 bg-background hover:scale-105 text-black",
         link: "text-green-500 underline-offset-2 hover:underline",
         fileAction: 'text-gray-500 hover:text-green-500 hover:scale-105',
+        ghost: "hover:bg-accent hover:text-accent-foreground",
       },
       size: {
         default: "h-10 px-4 py-2",

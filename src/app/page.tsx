@@ -1,5 +1,6 @@
 "use client";
 import { Button } from "@/components/button";
+import { DatePickerDemo } from "@/components/datepicker";
 import DocumentCard from "@/components/DocumentCard";
 import Loading from "@/components/loading";
 import UploadModal from "@/components/UploadDocModal";
@@ -15,6 +16,8 @@ export default function Home() {
   const { data: session, status } = useSession();
   const [documentType, setDocumentType] = useState("my");
   const [searchName, setSearchName] = useState("");
+  const [availableDates, setAvailableDates] = useState<Date[]>([]);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   
   // const [debouncedSearch, setDebouncedSearch] = useState("");
   // useEffect(() => {
@@ -50,15 +53,22 @@ export default function Home() {
             userEmail: session?.user?.email,
             documentType,
             searchName,
+            selectedDate,
           }),
         });
         const data = await response.json();
         setData(data.files);
+        const uniqueDates = [
+          ...new Set(
+            data.files.map((file) => new Date(file.createdTime))
+          ),
+        ];
+        setAvailableDates(uniqueDates);
         setLoading(false);
       }
     }
     getFiles();
-  }, [session, status, isModalOpen, documentType, searchName]);
+  }, [session, status, isModalOpen, documentType, searchName, selectedDate]);
 
   return (
     <div className="flex flex-col px-8 bg-gray-100">
@@ -93,6 +103,7 @@ export default function Home() {
               onClose={() => setIsModalOpen(false)}
             />
           )}
+          <DatePickerDemo availableDates={availableDates} onDateSelect={setSelectedDate} />
           <div className="relative flex">
             {/* search */}
             <Image
