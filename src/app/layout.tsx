@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import '@livekit/components-styles';
 import NextAuthSessionProvider from "@/providers/SessionProvider";
 import { ToastContainer } from "react-toastify";
 import Header from "@/layouts/Header";

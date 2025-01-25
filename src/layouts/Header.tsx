@@ -26,7 +26,7 @@ export default function Header() {
           <Link href="/">Documents</Link>
         </li>
         <li>
-          <Link href="/calendar">Calendar</Link>
+          <Link href="/meetings">Meetings</Link>
         </li>
       </ul>
       <ul className="flex items-center gap-4">
