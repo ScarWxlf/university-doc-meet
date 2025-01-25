@@ -35,15 +35,15 @@ export const Calendar = ({
           'absolute right-1 h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100'
         ),
         [UI.MonthGrid]: 'w-full border-collapse space-y-1',
-        [UI.Weekdays]: 'flex',
+        [UI.Weekdays]: 'flex gap-0.5',
         [UI.Weekday]:
           'text-muted-foreground rounded-md w-9 font-normal text-[0.8rem]',
-        [UI.Week]: 'flex w-full mt-2',
+        [UI.Week]: 'flex w-full mt-2 gap-0.5',
         [UI.Day]:
           'h-9 w-9 text-center rounded-md text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20',
         [UI.DayButton]: cn(
           buttonVariants({ variant: 'ghost' }),
-          'h-9 w-9 p-0 font-normal aria-selected:opacity-100 hover:bg-green-200 hover:text-primary-foreground'
+          'h-9 w-9 p-0 font-normal border-b-2 border-gray-500 aria-selected:opacity-100 hover:bg-green-200 hover:text-primary-foreground disabled:border-none'
         ),
         [SelectionState.range_end]: 'day-range-end',
         [SelectionState.selected]:

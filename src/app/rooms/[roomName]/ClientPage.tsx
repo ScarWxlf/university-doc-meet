@@ -53,7 +53,7 @@ export default function ClientPage(props: {
     const connectionDetailsData = await connectionDetailsResp.json();
     setConnectionDetails(connectionDetailsData);
   }, [ props.region, props.roomName]);
-  const handlePreJoinError = React.useCallback((e: any) => console.error(e), []);
+  const handlePreJoinError = React.useCallback((e: Error) => console.error(e), []);
 
   return (
     <main data-lk-theme="default" style={{ height: '100%' }}>

@@ -91,9 +91,9 @@ function getLiveKitURL(region: string | null): string {
 }
 
 function getCookieExpirationTime(): string {
-  var now = new Date();
-  var time = now.getTime();
-  var expireTime = time + 60 * 120 * 1000;
+  const now = new Date();
+  const time = now.getTime();
+  const expireTime = time + 60 * 120 * 1000;
   now.setTime(expireTime);
   return now.toUTCString();
 }
