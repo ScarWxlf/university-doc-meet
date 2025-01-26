@@ -5,13 +5,13 @@ import { format, isSameDay } from "date-fns"
 import { FaCalendarAlt } from "react-icons/fa";
 
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/button"
-import { Calendar } from "@/components/calendar"
+import { Button } from "@/components/ui/button"
+import { Calendar } from "@/components/ui/calendar"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/popover"
+} from "@/components/ui/popover"
 
 export function DatePickerDemo({
   availableDates,

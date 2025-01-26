@@ -1,5 +1,5 @@
 "use client";
-import { Button, buttonVariants } from "@/components/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import DecorativeFileSection from "@/components/DecorativeFileSection";
 import { cn } from "@/lib/utils";
 import Image from "next/image";

@@ -1,8 +1,8 @@
 "use client";
-import { Button } from "@/components/button";
-import { DatePickerDemo } from "@/components/datepicker";
+import { Button } from "@/components/ui/button";
+import { DatePickerDemo } from "@/components/ui/datepicker";
 import DocumentCard from "@/components/DocumentCard";
-import Loading from "@/components/loading";
+import Loading from "@/components/ui/loading";
 import UploadModal from "@/components/UploadDocModal";
 import { useSession } from "next-auth/react";
 import Image from "next/image";

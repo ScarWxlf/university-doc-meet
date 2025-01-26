@@ -1,12 +1,12 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import { useSearchParams } from "next/navigation";
-import { Button } from "@/components/button";
+import { Button } from "@/components/ui/button";
 import Quill from "quill";
 import * as quillToWord from "quill-to-word";
 import { toast } from "react-toastify";
 import { cn } from "@/lib/utils";
-import Loading from "@/components/loading";
+import Loading from "@/components/ui/loading";
 import ShareFileModal from "@/components/ShareFileModal";
 import { useSession } from "next-auth/react";
 

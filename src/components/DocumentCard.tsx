@@ -1,7 +1,7 @@
 import { FiDownload } from "react-icons/fi";
 import { MdEdit } from "react-icons/md";
 import { FaRegTrashAlt } from "react-icons/fa";
-import { Button } from "./button";
+import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 

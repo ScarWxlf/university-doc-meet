@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { format } from "date-fns";
-import { Calendar } from "@/components/calendar";
-import { Button } from "./button";
+import { format, isBefore } from "date-fns";
+import { Calendar } from "@/components/ui/calendar";
+import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
 import { toast } from "react-toastify";
+import { TimePicker } from "./ui/time-picker";
 
 export function CreateMeetingModal({
   onClose,
@@ -15,11 +16,20 @@ export function CreateMeetingModal({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
-  const [selectedTime, setSelectedTime] = useState<string>("12:00"); // Default time
   const [calendarOpen, setCalendarOpen] = useState(false);
 
+  const handleDateSelect = (date: Date | undefined) => {
+    if (date) {
+      const updatedDate = new Date(date);
+      updatedDate.setHours(12, 0, 0, 0);
+      setSelectedDate(updatedDate);
+    } else {
+      setSelectedDate(undefined);
+    }
+  };
+
   const handleSubmit = async () => {
-    if (!title || !selectedDate || !selectedTime) {
+    if (!title || !selectedDate) {
       const missingField = !title
         ? "Title"
         : !selectedDate
@@ -29,10 +39,11 @@ export function CreateMeetingModal({
       return;
     }
 
-    // Combine the selected date and time into a single Date object
-    const [hours, minutes] = selectedTime.split(":").map(Number);
-    const meetingDate = new Date(selectedDate);
-    meetingDate.setHours(hours, minutes, 0, 0);
+    const now = new Date();
+    if (isBefore(selectedDate, now)) {
+      toast.error("Cannot select a time in the past.");
+      return;
+    }
 
     const response = await fetch("/api/meetings/create", {
       method: "POST",
@@ -40,9 +51,8 @@ export function CreateMeetingModal({
       body: JSON.stringify({
         title,
         description,
-        date: meetingDate,
-        userId,
-        participants: [], // Add participants dynamically if needed
+        date: selectedDate,
+        userId
       }),
     });
 
@@ -72,18 +82,18 @@ export function CreateMeetingModal({
           className="border-2 border-gray-300 rounded-md p-2 my-2 w-full max-h-28"
         />
         <div className="relative w-full flex flex-col items-center h-10 overflow-visible">
-          {/* Date Picker */}
           <Button
             className="text-wrap"
             onClick={() => setCalendarOpen(!calendarOpen)}
           >
             {selectedDate === undefined
               ? "Click to select date"
-              : `${format(selectedDate, "PPP")}`}
+              : `${format(selectedDate, "PPP HH:mm")}`}
           </Button>
           <Calendar
             selected={selectedDate}
-            onSelect={setSelectedDate}
+            onSelect={handleDateSelect}
+            disabled={{ before: new Date() }}
             mode="single"
             className={cn(
               "mt-2 absolute bottom-[360px] rounded-xl shadow-xl bg-white z-10 transition-all duration-300",
@@ -94,18 +104,8 @@ export function CreateMeetingModal({
             )}
           />
         </div>
-        <div className="my-4">
-          {/* Time Picker */}
-          <label className="block text-sm font-medium">
-            Select Time
-          </label>
-          <input
-            type="time"
-            id="time-picker"
-            value={selectedTime}
-            onChange={(e) => setSelectedTime(e.target.value)}
-            className="border-2 border-gray-300 rounded-md p-2 my-2 w-full"
-          />
+        <div className="flex justify-center w-full my-4">
+          <TimePicker date={selectedDate} setDate={setSelectedDate} />
         </div>
         <div className="flex w-full justify-between mt-4">
           <Button variant="outline" onClick={onClose}>

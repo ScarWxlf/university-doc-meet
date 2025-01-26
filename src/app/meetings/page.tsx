@@ -1,5 +1,5 @@
 'use client'
-import { Button } from "@/components/button";
+import { Button } from "@/components/ui/button";
 import { CreateMeetingModal } from "@/components/CreateMeetModal";
 import { useSession } from "next-auth/react";
 import { useState } from "react";

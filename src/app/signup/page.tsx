@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import { Button, buttonVariants } from "@/components/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import DecorativeFileSection from "@/components/DecorativeFileSection";
 import { FormEvent, useState } from "react";
