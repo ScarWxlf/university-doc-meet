@@ -12,7 +12,6 @@ export default function DocumentCard({ file, userId }: { file: Record<string, st
 
     const handleDownload = async () => {
         try {
-          // API для отримання посилання на завантаження
           const response = await fetch(`/api/google/download`, {
             method: "POST",
             headers: {

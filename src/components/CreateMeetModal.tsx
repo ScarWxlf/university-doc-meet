@@ -56,11 +56,12 @@ export function CreateMeetingModal({
       }),
     });
 
+    const data = await response.json();
     if (response.ok) {
       toast.success("Meeting created!");
       onClose();
     } else {
-      toast.error("Failed to create meeting.");
+      toast.error("Failed to create meeting." + data.error);
     }
   };
 

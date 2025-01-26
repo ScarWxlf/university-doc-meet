@@ -1,19 +1,44 @@
-'use client'
+"use client";
 import { Button } from "@/components/ui/button";
 import { CreateMeetingModal } from "@/components/CreateMeetModal";
 import { useSession } from "next-auth/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Loading from "@/components/ui/loading";
+import { Meeting } from "@prisma/client";
+import MeetingCard from "@/components/MeetingCard";
 
 export default function MeetingsPage() {
-    const {data: session, status} = useSession();
-    const [isModalOpen, setIsModalOpen] = useState(false);
+  const { data: session, status } = useSession();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const [meetings, setMeetings] = useState<Meeting[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function getMeetings() {
+      setLoading(true);
+      if (status !== "loading") {
+        const response = await fetch("/api/meetings/getall", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId: session?.user?.id,
+          }),
+        });
+        const data = await response.json();
+        setMeetings(data.meetings);
+        setLoading(false);
+      }
+    }
+    getMeetings();
+  }, [session, status]);
   return (
     <div className="flex flex-col px-8 bg-gray-100">
       <div className="flex w-full p-6 justify-between">
         <div className="flex gap-2">
-          <h1 className="text-3xl text-gray-700 font-medium">
-            Meetings
-          </h1>
+          <h1 className="text-3xl text-gray-700 font-medium">Meetings</h1>
         </div>
         <div className="flex justify-between">
           <Button
@@ -33,7 +58,7 @@ export default function MeetingsPage() {
           {/* <DatePickerDemo availableDates={availableDates} onDateSelect={setSelectedDate} /> */}
         </div>
       </div>
-      <div className="bg-white px-3 rounded-xl shadow-xl">
+      {loading ? <Loading/> : <div className="bg-white px-3 rounded-xl shadow-xl">
         <div className="w-full flex items-center p-4">
           <p className="w-1/5 text-center">Title</p>
           <p className="w-1/5 text-center">Description</p>
@@ -41,16 +66,10 @@ export default function MeetingsPage() {
           <p className="w-1/5 text-center">Room Name</p>
           <p className="w-1/5 text-center">Participants </p>
         </div>
-        { [0, 1, 2].map((file, index) => (
-            <div key={index} className="w-full flex items-center p-4">
-                <p className="w-1/5 text-center">Some title</p>
-                <p className="w-1/5 text-center">Some Description</p>
-                <p className="w-1/5 text-center">Some Date</p>
-                <p className="w-1/5 text-center">Some Room Name</p>
-                <p className="w-1/5 text-center">Some Participants </p>
-            </div>
+        {meetings && meetings.map((meeting, index) => (
+          <MeetingCard key={index} meeting={meeting} />
         ))}
-      </div>
+      </div>}
     </div>
   );
 }
