@@ -25,6 +25,7 @@ export default function MeetingsPage() {
           },
           body: JSON.stringify({
             userId: session?.user?.id,
+            email: session?.user?.email,
           }),
         });
         const data = await response.json();

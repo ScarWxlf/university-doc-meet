@@ -98,7 +98,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ files: files });
     }
   } catch (error) {
-    console.error("Error creating file on Google Drive:", error as Error);
-    return NextResponse.json({ error: "Error creating file" }, { status: 500 });
+    console.error("Error getting files:", error as Error);
+    return NextResponse.json({ error: "Error creating file:" + (error as Error).message }, { status: 500 });
   }
 }

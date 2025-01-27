@@ -58,12 +58,14 @@ export default function Home() {
         });
         const data = await response.json();
         setData(data.files);
-        const uniqueDates = [
-          ...new Set(
-            data.files.map((file) => new Date(file.createdTime))
-          ),
-        ];
-        setAvailableDates(uniqueDates);
+        if(data.files) {
+          const uniqueDates = [
+            ...new Set(
+              data.files.map((file) => new Date(file.createdTime))
+            ),
+          ];
+          setAvailableDates(uniqueDates);
+        }
         setLoading(false);
       }
     }
