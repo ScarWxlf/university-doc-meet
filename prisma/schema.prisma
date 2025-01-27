@@ -22,7 +22,6 @@ model User {
   password  String?
   image String?
   documents Document[] @relation("CreatedDocuments")
-  meetings  Meeting[] @relation("MeetingParticipants")
   createdMeetings Meeting[]  @relation("CreatedMeetings")
   sharedFiles FileShare[] @relation("SharedFiles")
   receivedFiles FileShare[] @relation("SharedWith")
@@ -52,7 +51,7 @@ model Meeting {
   description   String?
   date          DateTime
   roomName      String     @unique
-  participants  User[]     @relation("MeetingParticipants")
+  invitedEmails String[] 
   createdBy     User       @relation("CreatedMeetings", fields: [createdById], references: [id], onDelete: Cascade)
   createdById   Int
 }

@@ -1,9 +1,15 @@
 import { Meeting } from "@prisma/client";
 import { format } from "date-fns";
-import { Button } from "./ui/button";
+import { Button, buttonVariants } from "./ui/button";
 import { IoIosPersonAdd } from "react-icons/io";
+import { useState } from "react";
+import AddParticipiantModel from "./AddParticipiantModel";
+import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 export default function MeetingCard({ meeting }: { meeting: Meeting }) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   return (
     <>
       <div className="h-[1px] bg-gray-400" />
@@ -13,13 +19,26 @@ export default function MeetingCard({ meeting }: { meeting: Meeting }) {
           {meeting.description ? meeting.description : "none"}
         </p>
         <p className="w-1/5 text-center">{format(meeting.date, "PPP HH:mm")}</p>
-        <p className="w-1/5 text-center">{meeting.roomName}</p>
-        <div className='w-1/5 text-center flex justify-center gap-2'>
-                <Button variant='fileAction' size='none' className="h-8">
-                    <IoIosPersonAdd size={32} />
-                </Button>
-            </div>
+        <p className="w-1/5 text-center">
+          <Link className={cn(buttonVariants({ variant: "link", size: "link" }))} href={`/rooms/${meeting.roomName}`}>{meeting.roomName}</Link>
+        </p>
+        <div className="w-1/5 text-center flex justify-center gap-2">
+          <Button
+            variant="fileAction"
+            size="none"
+            className="h-8"
+            onClick={() => setIsModalOpen(true)}
+          >
+            <IoIosPersonAdd size={32} />
+          </Button>
+        </div>
       </div>
+      {isModalOpen && (
+        <AddParticipiantModel
+          meetingId={meeting.id}
+          onClose={() => setIsModalOpen(false)}
+        />
+      )}
     </>
   );
 }
