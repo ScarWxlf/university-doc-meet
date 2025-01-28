@@ -37,3 +37,17 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Error creating meeting: " + (error as Error).message }, { status: 500 });
   }
 }
+
+export async function DELETE(req: Request){
+  try {
+    const { meetingId } = await req.json();
+    await prisma.meeting.delete({
+      where: {
+        id: parseInt(meetingId),
+      },
+    });
+    return NextResponse.json({ message: "Meeting deleted" });
+  } catch (error) {
+    return NextResponse.json({ error: "Error deleting meeting: " + (error as Error).message }, { status: 500 });
+  }
+}

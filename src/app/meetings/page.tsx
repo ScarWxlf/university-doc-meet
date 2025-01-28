@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { CreateMeetingModal } from "@/components/CreateMeetModal";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Loading from "@/components/ui/loading";
 import { Meeting } from "@prisma/client";
 import MeetingCard from "@/components/MeetingCard";
@@ -13,6 +14,8 @@ export default function MeetingsPage() {
 
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const router = useRouter();
 
   useEffect(() => {
     async function getMeetings() {
@@ -35,8 +38,20 @@ export default function MeetingsPage() {
     }
     getMeetings();
   }, [session, status]);
+
+  const handleCreateMeeting = async () => {
+    if(!session?.user?.id){
+      router.push('/signin')
+      return;
+    }
+    setIsModalOpen(true)
+  }
+
+  const handleDeleteMeeting = (meetingId: number) => {
+    setMeetings((prevMeetings) => prevMeetings.filter((meeting) => meeting.id !== meetingId));
+  };
   return (
-    <div className="flex flex-col px-8 bg-gray-100">
+    <div className="flex flex-col px-8 bg-gray-100 h-full">
       <div className="flex w-full p-6 justify-between">
         <div className="flex gap-2">
           <h1 className="text-3xl text-gray-700 font-medium">Meetings</h1>
@@ -46,7 +61,7 @@ export default function MeetingsPage() {
             className="rounded-full flex gap-2"
             variant="default"
             size="default"
-            onClick={() => setIsModalOpen(true)}
+            onClick={handleCreateMeeting}
           >
             Create New Meeting
           </Button>
@@ -59,18 +74,31 @@ export default function MeetingsPage() {
           {/* <DatePickerDemo availableDates={availableDates} onDateSelect={setSelectedDate} /> */}
         </div>
       </div>
-      {loading ? <Loading/> : <div className="bg-white px-3 rounded-xl shadow-xl">
-        <div className="w-full flex items-center p-4">
-          <p className="w-1/5 text-center">Title</p>
-          <p className="w-1/5 text-center">Description</p>
-          <p className="w-1/5 text-center">Date</p>
-          <p className="w-1/5 text-center">Room Name</p>
-          <p className="w-1/5 text-center">Participants </p>
+      {loading ? (
+        <Loading />
+      ) : (
+        <div className="bg-white px-3 rounded-xl shadow-xl">
+          <div className="w-full flex items-center p-4">
+            <p className="w-1/5 text-center">Title</p>
+            <p className="w-1/5 text-center">Description</p>
+            <p className="w-1/5 text-center">Date</p>
+            <p className="w-1/5 text-center">Room Name</p>
+            <p className="w-1/5 text-center">Participants </p>
+          </div>
+          {(meetings && meetings.length > 0) ? (
+            meetings.map((meeting, index) => (
+              <MeetingCard
+                key={index}
+                meeting={meeting}
+                userId={session?.user?.id}
+                onDelete={handleDeleteMeeting}
+              />
+            ))
+          ) : (
+            <p className="text-center text-lg p-4">No meetings found 😥</p>
+          )}
         </div>
-        {meetings && meetings.map((meeting, index) => (
-          <MeetingCard key={index} meeting={meeting} />
-        ))}
-      </div>}
+      )}
     </div>
   );
 }

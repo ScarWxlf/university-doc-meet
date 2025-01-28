@@ -23,7 +23,7 @@ export async function GET(req: Request) {
     const users = await prisma.user.findMany({
       where: {
         email: {
-          in: meeting!.invitedEmails, // Фільтруємо користувачів за списком email
+          in: meeting!.invitedEmails,
         },
       },
       select: {

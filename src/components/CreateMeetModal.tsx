@@ -45,7 +45,7 @@ export function CreateMeetingModal({
       return;
     }
 
-    const response = await fetch("/api/meetings/create", {
+    const response = await fetch("/api/meetings/meeting", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

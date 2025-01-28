@@ -2,12 +2,10 @@ import { FiDownload } from "react-icons/fi";
 import { MdEdit } from "react-icons/md";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { Button } from "./ui/button";
-import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
 
-export default function DocumentCard({ file, userId }: { file: Record<string, string>, userId: string }) {
-    const router = useRouter();
+export default function DocumentCard({ file, userId, onDelete }: { file: Record<string, string>, userId: string, onDelete: (fileId: string) => void }) {
     const userOwnerId = file.userOwnerId || userId;
 
     const handleDownload = async () => {
@@ -47,7 +45,7 @@ export default function DocumentCard({ file, userId }: { file: Record<string, st
           const data = await response.json();
           if(response.ok){
             toast.success(data?.message);
-            router.refresh();
+            onDelete(file.id);
           } else {
             toast.error(data?.error);
           }

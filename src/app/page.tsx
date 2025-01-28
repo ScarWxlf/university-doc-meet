@@ -8,6 +8,7 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const [data, setData] = useState([]);
@@ -18,7 +19,9 @@ export default function Home() {
   const [searchName, setSearchName] = useState("");
   const [availableDates, setAvailableDates] = useState<Date[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
-  
+
+  const router = useRouter();
+
   // const [debouncedSearch, setDebouncedSearch] = useState("");
   // useEffect(() => {
   //   const timer = setTimeout(() => {
@@ -58,11 +61,9 @@ export default function Home() {
         });
         const data = await response.json();
         setData(data.files);
-        if(data.files) {
+        if (data.files) {
           const uniqueDates = [
-            ...new Set(
-              data.files.map((file) => new Date(file.createdTime))
-            ),
+            ...new Set(data.files.map((file) => new Date(file.createdTime))),
           ];
           setAvailableDates(uniqueDates);
         }
@@ -72,14 +73,29 @@ export default function Home() {
     getFiles();
   }, [session, status, isModalOpen, documentType, searchName, selectedDate]);
 
+  const handleUploadDocument = async () => {
+    if (!session?.user?.id) {
+      router.push("/signin");
+      return;
+    }
+    setIsModalOpen(true);
+  };
+
+  const handleDeleteDocument = (fileId: string) => {
+    setData((prevData) => prevData.filter((file) => file.id !== fileId));
+  };
+
   return (
-    <div className="flex flex-col px-8 bg-gray-100">
+    <div className="flex flex-col px-8 bg-gray-100 h-full">
       <div className="p-6">
         <div className="flex gap-2">
           <h1 className="text-3xl text-gray-700 font-medium">
             Document manegment
           </h1>
-          <select className="border rounded-lg px-2 mx-2 py-2 focus:outline-none focus:ring focus:ring-green-200" onChange={(e) => setDocumentType(e.target.value)}>
+          <select
+            className="border rounded-lg px-2 mx-2 py-2 focus:outline-none focus:ring focus:ring-green-200"
+            onChange={(e) => setDocumentType(e.target.value)}
+          >
             <option value="my">My Documents</option>
             <option value="shared">Shared Documents</option>
           </select>
@@ -89,7 +105,7 @@ export default function Home() {
             className="rounded-full flex gap-2"
             variant="default"
             size="default"
-            onClick={() => setIsModalOpen(true)}
+            onClick={handleUploadDocument}
           >
             <Image
               src="/images/add-doc-button.svg"
@@ -105,7 +121,10 @@ export default function Home() {
               onClose={() => setIsModalOpen(false)}
             />
           )}
-          <DatePickerDemo availableDates={availableDates} onDateSelect={setSelectedDate} />
+          <DatePickerDemo
+            availableDates={availableDates}
+            onDateSelect={setSelectedDate}
+          />
           <div className="relative flex">
             {/* search */}
             <Image
@@ -135,10 +154,12 @@ export default function Home() {
         </div>
         {loading ? (
           <Loading />
+        ) : data && data.length > 0 ? (
+          data.map((file, index) => (
+            <DocumentCard key={index} file={file} userId={session?.user?.id} onDelete={handleDeleteDocument} />
+          ))
         ) : (
-          (data && data.length > 0) ?
-          (data.map((file, index) => <DocumentCard key={index} file={file} userId={session?.user?.id}/>))
-          : <p className="text-center text-lg p-4">No documents found 😥</p>
+          <p className="text-center text-lg p-4">No documents found 😥</p>
         )}
       </div>
     </div>
