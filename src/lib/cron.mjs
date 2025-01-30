@@ -15,6 +15,7 @@ const checkMeetings = async () => {
           gte: now,
           lte: tenMinutesLater,
         },
+        reminderSent: false,
       },
       include: { createdBy: true }
     });
@@ -23,23 +24,20 @@ const checkMeetings = async () => {
   
   
     for (const meeting of upcomingMeetings) {
+      const meetingDate = meeting.date.toLocaleString();
+      const meetingLink = `http://localhost:3000/rooms/${meeting.roomName}`;
       for (const email of meeting.invitedEmails) {
-        await sendEmail(
-          email,
-          `Reminder: Meeting "${meeting.title}"`,
-          `Hello, your meeting "${meeting.title}" starts at ${meeting.date.toLocaleTimeString()}.`
-        );
+        await sendEmail(email, `Reminder: Meeting "${meeting.title}"`, meeting.title, meetingDate, meetingLink);
       }
 
       if (meeting.createdBy?.email) {
-        await sendEmail(
-          meeting.createdBy.email,
-          `Reminder: Your Meeting "${meeting.title}"`,
-          `Hello, you created a meeting "${meeting.title}" that starts at ${meeting.date.toLocaleTimeString()}.`
-        );
+        await sendEmail(meeting.createdBy.email, `Reminder: Meeting "${meeting.title}"`, meeting.title, meetingDate, meetingLink);
       }
+      await prisma.meeting.update({
+        where: { id: meeting.id },
+        data: { reminderSent: true },
+      });
     }
-    
   } catch (error) {
     console.error("Error checking meetings:", error);
   }

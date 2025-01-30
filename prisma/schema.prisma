@@ -54,4 +54,5 @@ model Meeting {
   invitedEmails String[] 
   createdBy     User       @relation("CreatedMeetings", fields: [createdById], references: [id], onDelete: Cascade)
   createdById   Int
+  reminderSent   Boolean    @default(false)
 }

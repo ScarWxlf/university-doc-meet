@@ -17,27 +17,27 @@ export default function MeetingsPage() {
 
   const router = useRouter();
 
-  useEffect(() => {
-    async function getMeetings() {
-      setLoading(true);
-      if (status !== "loading") {
-        const response = await fetch("/api/meetings/getall", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            userId: session?.user?.id,
-            email: session?.user?.email,
-          }),
-        });
-        const data = await response.json();
-        setMeetings(data.meetings);
-        setLoading(false);
-      }
+  async function getMeetings() {
+    setLoading(true);
+    if (status !== "loading") {
+      const response = await fetch("/api/meetings/getall", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: session?.user?.id,
+          email: session?.user?.email,
+        }),
+      });
+      const data = await response.json();
+      setMeetings(data.meetings);
+      setLoading(false);
     }
+  }
+  useEffect(() => {
     getMeetings();
-  }, [session, status]);
+  }, [session, status, isModalOpen]);
 
   const handleCreateMeeting = async () => {
     if(!session?.user?.id){
