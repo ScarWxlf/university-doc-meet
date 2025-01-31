@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import LogOutButton from "@/components/LogOutButton";
 import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -45,17 +46,18 @@ export default function Header() {
                   alt="avatar"
                 />
               </button>
-              {menuOpen && (<div>
-                <ul className="absolute transform translate-x-1/2 right-1/2 w-24 gap-2 bg-white rounded-md shadow-md">
-                  <li className="hover:bg-gray-300 px-2 py-1 rounded-t-md">
-                    <Link href="/profile">Profile</Link>
-                  </li>
+              <div className={cn("transition-all duration-300",{
+                "opacity-0 scale-95 pointer-events-none": !menuOpen,
+                "opacity-100 scale-100": menuOpen,
+              })}>
+                <div className="absolute transform translate-x-1/2 right-1/2 w-24 gap-2 bg-white rounded-md shadow-md text-start">
+                  <Link href="/profile" className="inline-block text-start pl-5 hover:bg-gray-300 py-1 rounded-t-md w-full">
+                    Profile
+                  </Link>
                   <hr />
-                  <li className="hover:bg-gray-300 px-2 py-1 rounded-b-md">
-                    <LogOutButton />
-                  </li>
-                </ul>
-              </div>)}
+                  <LogOutButton className="inline-block text-start pl-5 hover:bg-gray-300 py-1 rounded-b-md w-full"/>
+                </div>
+              </div>
             </li>
           </>
         ) : (
