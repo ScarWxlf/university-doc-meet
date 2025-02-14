@@ -12,7 +12,7 @@ export default function Header() {
   const { data: session, status } = useSession();
   const pathname = usePathname();
 
-  if (pathname === "/signin" || pathname === "/signup") {
+  if (pathname === "/signin" || pathname === "/signup" || pathname.startsWith("/rooms/")) {
     return null;
   }
 
