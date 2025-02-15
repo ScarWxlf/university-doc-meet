@@ -93,6 +93,10 @@
   color: white !important;
 }
 
+.lk-join-button:hover{
+  background-color: #1e9c4f !important;
+}
+
 /*room styles*/
 .lk-close-button{
   background-color: rgb(183, 12, 12) !important;
