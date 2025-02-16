@@ -67,7 +67,7 @@ export default function MeetingsPage() {
           </Button>
           {isModalOpen && (
             <CreateMeetingModal
-              userId={session?.user?.id}
+              userId={session!.user.id}
               onClose={() => setIsModalOpen(false)}
             />
           )}
@@ -90,7 +90,7 @@ export default function MeetingsPage() {
               <MeetingCard
                 key={index}
                 meeting={meeting}
-                userId={session?.user?.id}
+                userId={session!.user.id}
                 onDelete={handleDeleteMeeting}
               />
             ))

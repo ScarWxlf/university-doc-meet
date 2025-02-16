@@ -1,4 +1,4 @@
-import NextAuth from 'next-auth';
+import NextAuth, { Session } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import { PrismaClient } from '@prisma/client';
@@ -6,6 +6,17 @@ import bcrypt from 'bcrypt';
 import { createUserFolderIfNotExists } from '@/lib/googleDriveUtils';
 
 const prisma = new PrismaClient();
+
+declare module 'next-auth' {
+  interface Session {
+    user: {
+      id: string;
+      name: string | null;
+      email: string | null;
+      image: string | null;
+    };
+  }
+}
 
 const handler = NextAuth({
   providers: [
@@ -89,7 +100,7 @@ const handler = NextAuth({
 
       return true;
     },
-    async jwt({ token, user, account, profile }) {
+    async jwt({ token, account, profile }) {
       if (account?.provider === 'google') {
         const dbUser = await prisma.user.findUnique({
           where: { email: profile!.email },
@@ -106,8 +117,8 @@ const handler = NextAuth({
     async session({ session, token }) {
       session.user = {
         ...session.user,
-        id: token.sub,
-        name: token.name,
+        id: token!.sub!,
+        name: token!.name!,
       };
       return session
     }

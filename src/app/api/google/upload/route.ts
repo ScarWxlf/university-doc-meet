@@ -37,7 +37,7 @@ export async function POST(req: Request) {
 
     await prisma.document.create({
       data: {
-        googleId: uploadResponse!.data!.id!,
+        googleId: uploadResponse.data.id!,
         createdById: parseInt(userId)
     }})
 

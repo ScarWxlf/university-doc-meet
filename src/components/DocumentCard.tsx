@@ -3,11 +3,12 @@ import { MdEdit } from "react-icons/md";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { Button } from "./ui/button";
 import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 
 export default function DocumentCard({ file, userId, onDelete }: { file: Record<string, string>, userId: string, onDelete: (fileId: string) => void }) {
     const userOwnerId = file.userOwnerId || userId;
-
+    const router = useRouter();
     const handleDownload = async () => {
         try {
           const response = await fetch(`/api/google/download`, {
