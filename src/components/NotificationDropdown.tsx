@@ -1,11 +1,18 @@
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
+// import { toast } from "react-toastify";
 
 interface Notification {
-    id: number;
-    message: string;
+  id: number;
+  createdAt: Date;
+  userId: number;
+  meetingId: number | null;
+  message: string;
+  isRead: boolean;
+  meeting: {
+    title: string;
+  }
 }
 
 export default function NotificationDropdown() {
@@ -32,7 +39,7 @@ export default function NotificationDropdown() {
     });
 
     setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
-    toast.success("Notification marked as read");
+    // toast.success("Notification marked as read");
   };
 
   return (
@@ -45,21 +52,26 @@ export default function NotificationDropdown() {
           alt="Notifications"
         />
         {notifications.length > 0 && (
-          <span className="absolute top-0 right-0 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
+          <span className="absolute top-0 -right-1 bg-red-500 text-white text-[9px] px-1 py-0.5 rounded-full">
             {notifications.length}
           </span>
         )}
       </button>
       {menuOpen && (
-        <div className="absolute right-0 mt-2 w-64 bg-white shadow-lg rounded-lg">
-          <ul>
+        <div className="absolute right-0 top-12 mt-2 w-80 bg-white shadow-lg rounded-2xl p-3 z-50">
+          <ul className="space-y-1">
             {notifications.length > 0 ? (
               notifications.map((notification) => (
-                <li key={notification.id} className="p-2 border-b">
-                  <p className="text-sm">{notification.message}</p>
+                <li key={notification.id} className="p-3 hover:bg-gray-200 rounded-2xl">
+                  <p className="text-sm">{notification.message + " " + notification.meeting.title}</p>
+                  <div>
+                    <span className="text-xs text-gray-500">
+                      {(new Date(notification.createdAt)).toLocaleString()}
+                    </span>
+                  </div>
                   <button
                     onClick={() => markAsRead(notification.id)}
-                    className="text-blue-500 text-xs"
+                    className="text-green-500 text-xs"
                   >
                     Mark as read
                   </button>
