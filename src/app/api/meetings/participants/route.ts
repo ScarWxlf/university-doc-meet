@@ -74,6 +74,14 @@ export async function POST(req: Request) {
       },
     });
 
+    await prisma.notification.create({
+      data: {
+        userId: user.id,
+        meetingId,
+        message: `You have been invited to the meeting.`,
+      },
+    });
+
     return NextResponse.json({ message: "Participant added successfully" });
   } catch (error) {
     return NextResponse.json({ error: "Error adding participant" + (error as Error).message }, { status: 500 });

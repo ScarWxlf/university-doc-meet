@@ -23,6 +23,7 @@ model User {
   image String?
   documents Document[] @relation("CreatedDocuments")
   createdMeetings Meeting[]  @relation("CreatedMeetings")
+  userNotifications Notification[] @relation("UserNotifications")
   sharedFiles FileShare[] @relation("SharedFiles")
   receivedFiles FileShare[] @relation("SharedWith")
 }
@@ -55,13 +56,14 @@ model Meeting {
   createdBy     User       @relation("CreatedMeetings", fields: [createdById], references: [id], onDelete: Cascade)
   createdById   Int
   reminderSent   Boolean    @default(false)
+  meetingNotification Notification[] @relation("MeetingNotification")
 }
 
 model Notification {
   id          Int      @id @default(autoincrement())
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User     @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
   userId      Int
-  meeting     Meeting? @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  meeting     Meeting? @relation("MeetingNotification", fields: [meetingId], references: [id], onDelete: Cascade)
   meetingId   Int?
   message     String
   isRead      Boolean  @default(false)

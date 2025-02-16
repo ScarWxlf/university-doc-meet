@@ -6,6 +6,7 @@ import Link from "next/link";
 import LogOutButton from "@/components/LogOutButton";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import NotificationDropdown from "@/components/NotificationDropdown";
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -33,8 +34,8 @@ export default function Header() {
       <ul className="flex items-center gap-4">
         {status === "loading" ? null : session ? (
           <>
-            <li>
-              <Image src='/images/bell.svg' width={20} height={20} alt='notification' />
+            <li className="relative">
+              <NotificationDropdown />
             </li>
             <li className="relative">
               <button onClick={()=>{setMenuOpen(!menuOpen)}}>
