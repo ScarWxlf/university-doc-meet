@@ -117,7 +117,7 @@ export default function Home() {
           </Button>
           {isModalOpen && (
             <UploadModal
-              userId={session?.user?.id}
+              userId={session!.user.id}
               onClose={() => setIsModalOpen(false)}
             />
           )}
@@ -156,7 +156,7 @@ export default function Home() {
           <Loading />
         ) : data && data.length > 0 ? (
           data.map((file, index) => (
-            <DocumentCard key={index} file={file} userId={session?.user?.id} onDelete={handleDeleteDocument} />
+            <DocumentCard key={index} file={file} userId={session!.user.id} onDelete={handleDeleteDocument} />
           ))
         ) : (
           <p className="text-center text-lg p-4">No documents found 😥</p>

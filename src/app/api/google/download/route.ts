@@ -5,6 +5,14 @@ export async function POST(req: Request) {
   try {
     const { fileId } = await req.json();
 
+    await drive.permissions.create({
+      fileId,
+      requestBody: {
+        type: "anyone",
+        role: "reader",
+      },
+    });
+
     const response = await drive.files.get(
       {
         fileId,
