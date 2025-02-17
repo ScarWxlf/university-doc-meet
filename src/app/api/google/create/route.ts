@@ -26,10 +26,10 @@ export async function POST(req: Request) {
     }
 
     const fileExtension = extensionMap[mimeType] || "";
-    // const formattedFileName = fileName.endsWith(fileExtension) ? fileName : `${fileName}${fileExtension}`;
+    //const formattedFileName = fileName.endsWith(fileExtension) ? fileName : `${fileName}${fileExtension}`;
 
     const fileMetadata = {
-      name: fileName || ("New Document" + fileExtension),
+      name: fileName ? (fileName + fileExtension) : ("New Document" + fileExtension),
       parents: [userFolder!.id!],
     };
 
