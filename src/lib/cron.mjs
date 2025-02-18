@@ -19,9 +19,6 @@ const checkMeetings = async () => {
       },
       include: { createdBy: true }
     });
-    console.log("📅 Upcoming meetings:", upcomingMeetings);
-    console.log("🌍 Server Timezone:", Intl.DateTimeFormat().resolvedOptions().timeZone);
-  
   
     for (const meeting of upcomingMeetings) {
       const meetingDate = meeting.date.toLocaleString();

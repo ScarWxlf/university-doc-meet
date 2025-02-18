@@ -33,12 +33,30 @@ export default function Editor() {
         theme: "snow",
         modules: {
           toolbar: [
-            [{ header: [1, 2, 3, false] }],
-            ["bold", "italic", "underline", "strike"],
-            [{ list: "ordered" }, { list: "bullet" }],
-            ["link", "image"],
-            ["clean"],
+            ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+            ['blockquote', 'code-block'],
+            ['link', 'image', 'video', 'formula'],
+          
+            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+            [{ 'script': 'sub'}, { 'script': 'super' }],      // superscript/subscript
+            [{ 'indent': '-1'}, { 'indent': '+1' }],          // outdent/indent
+            [{ 'direction': 'rtl' }],                         // text direction
+          
+            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+          
+            [{ 'color': [] }, { 'background': [] }],
+            [{ 'font': [] }],
+            [{ 'align': [] }],
+          
+            ['clean']                                         // remove formatting button
           ],
+          // [
+          //   [{ header: [1, 2, 3, false] }],
+          //   ["bold", "italic", "underline", "strike"],
+          //   [{ list: "ordered" }, { list: "bullet" }],
+          //   ["link", "image"],
+          //   ["clean"],
+          // ],
         },
       });
       quillRef.current = quillInstance;
