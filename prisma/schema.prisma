@@ -59,6 +59,13 @@ model Meeting {
   meetingNotification Notification[] @relation("MeetingNotification")
 }
 
+model MeetingStats {
+  id            Int       @id @default(autoincrement())
+  createdById   Int 
+  roomName      String    @unique
+  events        Json      @default("[]")
+}
+
 model Notification {
   id          Int      @id @default(autoincrement())
   user        User     @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)

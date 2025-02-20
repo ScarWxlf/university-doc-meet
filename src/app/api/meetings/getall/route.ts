@@ -7,16 +7,16 @@ export async function POST(req: Request) {
   try {
     const { userId, email } = await req.json();
 
-    const now = new Date();
-    now.setHours(now.getHours() - 1);
+    // const now = new Date();
+    // now.setHours(now.getHours() - 1);
 
-    await prisma.meeting.deleteMany({
-      where: {
-        date: {
-          lt: now,
-        },
-      },
-    });
+    // await prisma.meeting.deleteMany({
+    //   where: {
+    //     date: {
+    //       lt: now,
+    //     },
+    //   },
+    // });
 
     const response = await prisma.meeting.findMany({
         where: {

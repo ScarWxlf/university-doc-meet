@@ -9,11 +9,13 @@ import { registerSchema } from "@/lib/validator";
 import { toast } from "react-toastify";
 import { z } from "zod";
 import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function SignUp() {
   const [errors, setErrors] = useState<Record<string, string[] | undefined>>(
     {}
   );
+  const router = useRouter();
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -43,7 +45,8 @@ export default function SignUp() {
         });
         return;
       }
-      await signIn("credentials", { email, password, callbackUrl: "/?loginSuccess=true" });
+      await signIn("credentials", { email, password, redirect: false });
+      router.replace("/?loginSuccess=true");
     } catch (error) {
       if (error instanceof z.ZodError) {
         const fieldErrors = error.flatten().fieldErrors;
