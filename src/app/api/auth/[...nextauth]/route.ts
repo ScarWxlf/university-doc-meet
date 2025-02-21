@@ -122,7 +122,8 @@ const handler = NextAuth({
       };
       return session
     }
-  }
+  },
+  useSecureCookies: process.env.NEXTAUTH_URL?.startsWith("https://"),
 });
 
 export {handler as GET, handler as POST};

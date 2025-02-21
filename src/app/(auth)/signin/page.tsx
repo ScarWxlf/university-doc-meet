@@ -69,7 +69,9 @@ export default function SignIn() {
               <h2 className="text-xl">Login into your account</h2>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" className="flex items-center gap-2" onClick={() => signIn('google', {callbackUrl: '/?loginSuccess=true'})}>
+              <Button variant="outline" className="flex items-center gap-2" onClick={async () => {
+                await signIn('google', {callbackUrl: '/?loginSuccess=true'})
+              }}>
                 <Image
                   src="/images/google.svg"
                   width={20}
