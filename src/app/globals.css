@@ -102,3 +102,7 @@
   background-color: rgb(183, 12, 12) !important;
   color: black !important;
 }
+
+.lk-username-container input[name="username"] {
+  display: none !important;
+}

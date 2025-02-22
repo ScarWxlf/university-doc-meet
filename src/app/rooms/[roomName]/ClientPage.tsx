@@ -14,6 +14,7 @@ import {
   Room,
   RoomConnectOptions,
 } from 'livekit-client';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import React from 'react';
 
@@ -27,12 +28,15 @@ export default function ClientPage(props: {
   hq: boolean;
   codec: VideoCodec;
 }) {
+  const { data: session } = useSession();
+  const user = session?.user;
+
   const [preJoinChoices, setPreJoinChoices] = React.useState<LocalUserChoices | undefined>(
     undefined,
   );
   const preJoinDefaults = React.useMemo(() => {
     return {
-      username: '',
+      username: user!.name!,
       videoEnabled: true,
       audioEnabled: true,
     };
