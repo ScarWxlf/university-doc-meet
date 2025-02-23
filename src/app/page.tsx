@@ -46,26 +46,28 @@ export default function Home() {
     async function getFiles() {
       setLoading(true);
       if (status !== "loading") {
-        const response = await fetch("/api/google/getfiles", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            userId: session?.user?.id,
-            userEmail: session?.user?.email,
-            documentType,
-            searchName,
-            selectedDate,
-          }),
-        });
-        const data = await response.json();
-        setData(data.files);
-        if (data.files) {
-          const uniqueDates = [
-            ...new Set(data.files.map((file) => new Date(file.createdTime))),
-          ];
-          setAvailableDates(uniqueDates);
+        if(session !== null){
+          const response = await fetch("/api/google/getfiles", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              userId: session?.user?.id,
+              userEmail: session?.user?.email,
+              documentType,
+              searchName,
+              selectedDate,
+            }),
+          });
+          const data = await response.json();
+          setData(data.files);
+          if (data.files) {
+            const uniqueDates = [
+              ...new Set(data.files.map((file) => new Date(file.createdTime))),
+            ];
+            setAvailableDates(uniqueDates);
+          }
         }
         setLoading(false);
       }
@@ -154,9 +156,9 @@ export default function Home() {
         </div>
         {loading ? (
           <Loading />
-        ) : data && data.length > 0 ? (
+        ) : data && data.length > 0 && session !== null ? (
           data.map((file, index) => (
-            <DocumentCard key={index} file={file} userId={session!.user.id} onDelete={handleDeleteDocument} />
+            <DocumentCard key={index} file={file} userId={session.user.id} onDelete={handleDeleteDocument} />
           ))
         ) : (
           <p className="text-center text-lg p-4">No documents found 😥</p>
