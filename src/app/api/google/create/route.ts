@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { drive } from "@/lib/google";
 import { PrismaClient } from "@prisma/client";
+import { Document, Packer, Paragraph } from "docx";
+import { Readable } from "stream";
 
 const prisma = new PrismaClient();
 
@@ -26,16 +28,26 @@ export async function POST(req: Request) {
     }
 
     const fileExtension = extensionMap[mimeType] || "";
-    //const formattedFileName = fileName.endsWith(fileExtension) ? fileName : `${fileName}${fileExtension}`;
+    const formattedFileName = fileName
+      ? `${fileName}${fileExtension}`
+      : `New Document${fileExtension}`;
+
+    let fileBuffer: Buffer | undefined;
+    if (mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
+      const doc = new Document({
+        sections: [{ children: [new Paragraph("")] }],
+      });
+      fileBuffer = await Packer.toBuffer(doc);
+    }
 
     const fileMetadata = {
-      name: fileName ? (fileName + fileExtension) : ("New Document" + fileExtension),
+      name: formattedFileName,
       parents: [userFolder!.id!],
     };
 
     const media = {
-        mimeType,
-        body: "",
+      mimeType,
+      body: fileBuffer ? Readable.from(fileBuffer) : "",
     };
 
     const createResponse = await drive.files.create({
