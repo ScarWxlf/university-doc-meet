@@ -35,12 +35,23 @@ export default function ClientPage(props: {
     undefined,
   );
   const preJoinDefaults = React.useMemo(() => {
+    // const image = document.getElementsByClassName('lk-camera-off-note')[0] as HTMLElement
+    // if(image){
+    //   image.innerHTML = "";
+    //   const avatar = document.createElement('img');
+    //   avatar.src = user!.image!;
+    //   avatar.style.width = '30%';
+    //   avatar.style.height = '45%';
+    //   avatar.classList.add("rounded-full");
+    //   image.appendChild(avatar);
+    //   console.log(image)
+    // }
     return {
       username: user!.name!,
       videoEnabled: true,
       audioEnabled: true,
     };
-  }, []);
+  }, [user]);
   const [connectionDetails, setConnectionDetails] = React.useState<ConnectionDetails | undefined>(
     undefined,
   );

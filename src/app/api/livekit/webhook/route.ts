@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { JsonArray } from "@prisma/client/runtime/library";
+import { drive } from "@/lib/google";
+import { Document, Packer, Paragraph, TextRun } from "docx";
+import { Readable } from "stream";
 
 const prisma = new PrismaClient();
 
@@ -28,7 +30,7 @@ export async function POST(req: Request) {
     if (event.event === "participant_joined" || event.event === "participant_left") {
       const meetingStats = await prisma.meetingStats.findUnique({
         where: { roomName: event.room.name },
-        select: { events: true }, // Отримуємо поточний масив подій
+        select: { events: true },
       });
     
       const now = new Date().toISOString();
@@ -84,7 +86,6 @@ const generateMeetingReport = async (meetingStats: meetingStats) => {
 
     // TODO: створювати руму при створенні мітингу, фіксувати всі події і потім фільтрувати тільки від початку мітингу до його кінця
 
-
     const participantsMap = new Map();
 
     events.forEach((event: Event) => {
@@ -101,23 +102,69 @@ const generateMeetingReport = async (meetingStats: meetingStats) => {
       }
     });
 
-    // TODO: записувати звіт в файл і надсилати його власнику мітингу
-
-    let reportText = `📅 Meeting: ${meeting!.title}\n🕒 Date: ${meeting!.date.toISOString()}\n\n`;
-    reportText += "👥 Participants:\n";
-
-    participantsMap.forEach((p) => {
-      reportText += `- ${p.name} (Joined: ${p.joinedAt}, Left: ${p.leftAt || "Still in meeting"})\n`;
+    const doc = new Document({
+      sections: [
+        {
+          properties: {},
+          children: [
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: `📅 Meeting: ${meeting!.title}`,
+                  bold: true,
+                  size: 28,
+                }),
+              ],
+            }),
+            new Paragraph(`🕒 Date: ${meeting!.date.toISOString()}`),
+            new Paragraph("👥 Participants:\n"),
+            ...Array.from(participantsMap.values()).map((p) =>
+              new Paragraph(`- ${p.name} (Joined: ${p.joinedAt}, Left: ${p.leftAt || "Still in meeting"})`)
+            ),
+            new Paragraph("\n📜 Event Logs:\n"),
+            ...events.map((e: Event) =>
+              new Paragraph(`- ${e.timestamp}: ${e.event} - ${e.participant.name}`)
+            ),
+          ],
+        },
+      ],
     });
 
-    reportText += "\n📜 Event Logs:\n";
-    events.forEach((e: Event) => {
-      reportText += `- ${e.timestamp}: ${e.event} - ${e.participant.name}\n`;
+    const buffer = await Packer.toBuffer(doc);
+
+    const folderResponse = await drive.files.list({
+      q: `name = 'user-${createdById}' and mimeType = 'application/vnd.google-apps.folder'`,
+      fields: "files(id)",
+    });
+
+    const userFolder = folderResponse.data.files?.[0];
+
+    const fileMetadata = {
+      name: `${meeting!.title}.docx`,
+      parents: [userFolder!.id!],
+    };
+
+    const media = {
+      mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      body: Readable.from(buffer),
+    };
+
+    const createResponse = await drive.files.create({
+      requestBody: fileMetadata,
+      media,
+      fields: "id",
+    });
+
+    await prisma.document.create({
+      data: {
+        googleId: createResponse.data.id!,
+        createdById: createdById,
+      },
     });
 
     await prisma.meetingStats.delete({ where: { id } });
 
-    console.log(`✅ 📊 Report generated for meeting "${meeting!.title}":\n${reportText}`);
+    console.log(`✅ 📊 Report generated for meeting "${meeting!.title}" and saved as .docx`);
   } catch (error) {
     console.log("❌ Error generating meeting report:", error);
   }
