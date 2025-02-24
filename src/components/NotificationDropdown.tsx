@@ -1,6 +1,8 @@
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import DropdownWrapper from "./DropdownWrapper";
+import { cn } from "@/lib/utils";
 // import { toast } from "react-toastify";
 
 interface Notification {
@@ -12,17 +14,19 @@ interface Notification {
   isRead: boolean;
   meeting: {
     title: string;
-  }
+  };
 }
 
 export default function NotificationDropdown() {
-    const {data: session} = useSession();
+  const { data: session } = useSession();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     async function fetchNotifications() {
-      const response = await fetch(`/api/notifications?userId=${session!.user!.id}`);
+      const response = await fetch(
+        `/api/notifications?userId=${session!.user!.id}`
+      );
 
       const data = await response.json();
       setNotifications(data.notifications);
@@ -57,34 +61,44 @@ export default function NotificationDropdown() {
           </span>
         )}
       </button>
-      {menuOpen && (
-        <div className="absolute right-0 top-12 mt-2 w-80 bg-white shadow-lg rounded-2xl p-3 z-50">
-          <ul className="space-y-1">
-            {notifications.length > 0 ? (
-              notifications.map((notification) => (
-                <li key={notification.id} className="p-3 hover:bg-gray-200 rounded-2xl">
-                  <p className="text-sm">{notification.message + " " + notification.meeting.title}</p>
-                  <div>
-                    <span className="text-xs text-gray-500">
-                      {(new Date(notification.createdAt)).toLocaleString()}
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => markAsRead(notification.id)}
-                    className="text-green-500 text-xs"
+        <DropdownWrapper isOpen={menuOpen} onClose={() => setMenuOpen(false)}>
+          <div className={cn("absolute right-0 top-4 mt-2 w-80 bg-white shadow-lg rounded-2xl p-3 z-50 transition-all duration-300", 
+            {
+              "opacity-0 scale-95 pointer-events-none": !menuOpen,
+              "opacity-100 scale-100 pointer-events-auto": menuOpen,
+            }
+          )}>
+            <ul className="space-y-1">
+              {notifications.length > 0 ? (
+                notifications.map((notification) => (
+                  <li
+                    key={notification.id}
+                    className="p-3 hover:bg-gray-200 rounded-2xl"
                   >
-                    Mark as read
-                  </button>
+                    <p className="text-sm">
+                      {notification.message + " " + notification.meeting.title}
+                    </p>
+                    <div>
+                      <span className="text-xs text-gray-500">
+                        {new Date(notification.createdAt).toLocaleString()}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => markAsRead(notification.id)}
+                      className="text-green-500 text-xs"
+                    >
+                      Mark as read
+                    </button>
+                  </li>
+                ))
+              ) : (
+                <li className="p-2 text-center text-gray-500">
+                  No notifications
                 </li>
-              ))
-            ) : (
-              <li className="p-2 text-center text-gray-500">
-                No notifications
-              </li>
-            )}
-          </ul>
-        </div>
-      )}
+              )}
+            </ul>
+          </div>
+        </DropdownWrapper>
     </div>
   );
 }

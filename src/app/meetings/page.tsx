@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import Loading from "@/components/ui/loading";
 import { Meeting } from "@prisma/client";
 import MeetingCard from "@/components/MeetingCard";
+import ModalWrapper from "@/components/ModalWrapper";
 
 export default function MeetingsPage() {
   const { data: session, status } = useSession();
@@ -65,12 +66,9 @@ export default function MeetingsPage() {
           >
             Create New Meeting
           </Button>
-          {isModalOpen && (
-            <CreateMeetingModal
-              userId={session!.user.id}
-              onClose={() => setIsModalOpen(false)}
-            />
-          )}
+          <ModalWrapper isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+            <CreateMeetingModal userId={session!.user.id} onClose={() => setIsModalOpen(false)} />
+          </ModalWrapper>
           {/* <DatePickerDemo availableDates={availableDates} onDateSelect={setSelectedDate} /> */}
         </div>
       </div>

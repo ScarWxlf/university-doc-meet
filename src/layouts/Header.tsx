@@ -7,6 +7,7 @@ import LogOutButton from "@/components/LogOutButton";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import NotificationDropdown from "@/components/NotificationDropdown";
+import DropdownWrapper from "@/components/DropdownWrapper";
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -47,9 +48,10 @@ export default function Header() {
                   alt="avatar"
                 />
               </button>
+              <DropdownWrapper isOpen={menuOpen} onClose={() => setMenuOpen(false)}>
               <div className={cn("transition-all duration-300",{
                 "opacity-0 scale-95 pointer-events-none": !menuOpen,
-                "opacity-100 scale-100": menuOpen,
+                "opacity-100 scale-100 pointer-events-auto": menuOpen,
               })}>
                 <div className="absolute transform translate-x-1/2 right-1/2 w-24 gap-2 bg-white rounded-md shadow-md text-start">
                   <Link href="/profile" className="inline-block text-start pl-5 hover:bg-gray-300 py-1 rounded-t-md w-full">
@@ -59,6 +61,7 @@ export default function Header() {
                   <LogOutButton className="inline-block text-start pl-5 hover:bg-gray-300 py-1 rounded-b-md w-full"/>
                 </div>
               </div>
+              </DropdownWrapper>
             </li>
           </>
         ) : (

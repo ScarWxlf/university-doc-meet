@@ -9,6 +9,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import ModalWrapper from "@/components/ModalWrapper";
 
 export default function Home() {
   const [data, setData] = useState([]);
@@ -117,12 +118,12 @@ export default function Home() {
             />
             Add New Document
           </Button>
-          {isModalOpen && (
-            <UploadModal
-              userId={session!.user.id}
-              onClose={() => setIsModalOpen(false)}
-            />
-          )}
+            <ModalWrapper isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+              <UploadModal
+                userId={session!.user.id}
+                onClose={() => setIsModalOpen(false)}
+              />
+            </ModalWrapper>
           <DatePickerDemo
             availableDates={availableDates}
             onDateSelect={setSelectedDate}

@@ -5,6 +5,7 @@ import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
 import { toast } from "react-toastify";
 import { TimePicker } from "./ui/time-picker";
+import DropdownWrapper from "./DropdownWrapper";
 
 export function CreateMeetingModal({
   onClose,
@@ -66,7 +67,6 @@ export function CreateMeetingModal({
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 overflow-visible">
       <div className="bg-white p-6 rounded-lg shadow-lg w-96">
         <h2 className="text-lg font-semibold">Create Meeting</h2>
         <input
@@ -91,19 +91,21 @@ export function CreateMeetingModal({
               ? "Click to select date"
               : `${format(selectedDate, "PPP HH:mm")}`}
           </Button>
-          <Calendar
-            selected={selectedDate}
-            onSelect={handleDateSelect}
-            disabled={{ before: new Date() }}
-            mode="single"
-            className={cn(
-              "mt-2 absolute bottom-[360px] rounded-xl shadow-xl bg-white z-10 transition-all duration-300",
-              {
-                "opacity-0 scale-95 pointer-events-none": !calendarOpen,
-                "opacity-100 scale-100": calendarOpen,
-              }
-            )}
-          />
+          <DropdownWrapper isOpen={calendarOpen} onClose={() => setCalendarOpen(false)}>
+            <Calendar
+              selected={selectedDate}
+              onSelect={handleDateSelect}
+              disabled={{ before: new Date() }}
+              mode="single"
+              className={cn(
+                "mt-2 absolute bottom-[360px] rounded-xl shadow-xl bg-white z-10 transition-all duration-300",
+                {
+                  "opacity-0 scale-95 pointer-events-none": !calendarOpen,
+                  "opacity-100 scale-100 pointer-events-auto": calendarOpen,
+                }
+              )}
+            />
+          </DropdownWrapper>
         </div>
         <div className="flex justify-center w-full my-4">
           <TimePicker date={selectedDate} setDate={setSelectedDate} />
@@ -117,6 +119,5 @@ export function CreateMeetingModal({
           </Button>
         </div>
       </div>
-    </div>
   );
 }
