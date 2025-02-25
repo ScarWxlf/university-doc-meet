@@ -1,21 +1,16 @@
 'use client';
-import { sendEmail } from "@/lib/email.mjs";
+
 export default function Test(){
 
-  const handleSendEmail = async () => {
-    await sendEmail(
-      "katchurcheferdavid@gmail.com",
-      `Reminder: Meeting "HEHE"`,
-      `Hello, your meeting "HEH" starts at 21.00.`
-    );
+  async function test(){
+    const res = await fetch('/api/test');
+    const data = await res.json();
+    console.log(data)
   }
-
   return (
     <>    
     <h1>test</h1>
-    <button onClick={handleSendEmail}>
-      send email
-    </button>
+    <button onClick={test}>test</button>
     </>
   );
 }

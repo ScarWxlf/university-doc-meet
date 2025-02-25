@@ -10,11 +10,31 @@ export async function POST(req: Request) {
   try {
     const event = await req.json();
     console.log(event);
+    if (!event || typeof event !== "object") {
+      throw new Error("Invalid webhook payload");
+    }
 
+    
     if(event.event === "room_started") {
+      const eventExists = await prisma.meetingStats.findFirst({
+        where: {
+          roomName: event.room.name,
+        }
+      });
+      
+      if (eventExists) {
+        console.log(`⚠️ Duplicate event ignored: ${event.event}`);
+        return NextResponse.json({ message: "Duplicate event ignored" });
+      }
+
       const meeting = await prisma.meeting.findUnique({
         where: { roomName: event.room.name },
       });
+
+      if(!meeting) {
+        console.log(`⚠️ Meeting not found for room: ${event.room.name}`);
+        return NextResponse.json({ message: "Meeting not found" });
+      }
 
       await prisma.meetingStats.create({
         data: {
@@ -25,15 +45,13 @@ export async function POST(req: Request) {
       });
     }
 
-    const now = new Date();
-
     if (event.event === "participant_joined" || event.event === "participant_left") {
       const meetingStats = await prisma.meetingStats.findUnique({
         where: { roomName: event.room.name },
         select: { events: true },
       });
     
-      const now = new Date().toISOString();
+      const now = new Date()
     
       const newEvent = {
         timestamp: now,
@@ -53,6 +71,10 @@ export async function POST(req: Request) {
       const meetingStats = await prisma.meetingStats.findUnique({
         where: { roomName: event.room.name },
       });
+      if(!meetingStats) {
+        return NextResponse.json({ message: "Meeting not found" });
+      }
+
       await generateMeetingReport(meetingStats!);
     }
 
@@ -102,6 +124,17 @@ const generateMeetingReport = async (meetingStats: meetingStats) => {
       }
     });
 
+    const now = new Date();
+    const startTime = new Date(meeting!.date);
+    const durationMs = now.getTime() - startTime.getTime();
+
+    const hours = Math.floor(durationMs / (1000 * 60 * 60));
+    const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((durationMs % (1000 * 60)) / 1000);
+
+    const durationFormatted = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+
+
     const doc = new Document({
       sections: [
         {
@@ -116,14 +149,15 @@ const generateMeetingReport = async (meetingStats: meetingStats) => {
                 }),
               ],
             }),
-            new Paragraph(`🕒 Date: ${meeting!.date.toISOString()}`),
+            new Paragraph(`🕒 Date: ${meeting!.date.toLocaleString()}`),
+            new Paragraph(`⏳ Duration: ${durationFormatted}`),
             new Paragraph("👥 Participants:\n"),
             ...Array.from(participantsMap.values()).map((p) =>
-              new Paragraph(`- ${p.name} (Joined: ${p.joinedAt}, Left: ${p.leftAt || "Still in meeting"})`)
+              new Paragraph(`- ${p.name} (Joined: ${new Date(p.joinedAt).toLocaleString()}, Left: ${new Date(p.leftAt).toLocaleString()})`)
             ),
             new Paragraph("\n📜 Event Logs:\n"),
             ...events.map((e: Event) =>
-              new Paragraph(`- ${e.timestamp}: ${e.event} - ${e.participant.name}`)
+              new Paragraph(`- ${new Date(e.timestamp).toLocaleString()}: ${e.event} - ${e.participant.name}`)
             ),
           ],
         },
@@ -140,7 +174,7 @@ const generateMeetingReport = async (meetingStats: meetingStats) => {
     const userFolder = folderResponse.data.files?.[0];
 
     const fileMetadata = {
-      name: `${meeting!.title}.docx`,
+      name: `Report meeting "${meeting!.title}".docx`,
       parents: [userFolder!.id!],
     };
 
@@ -163,6 +197,7 @@ const generateMeetingReport = async (meetingStats: meetingStats) => {
     });
 
     await prisma.meetingStats.delete({ where: { id } });
+    await prisma.meeting.delete({ where: { roomName } });
 
     console.log(`✅ 📊 Report generated for meeting "${meeting!.title}" and saved as .docx`);
   } catch (error) {
