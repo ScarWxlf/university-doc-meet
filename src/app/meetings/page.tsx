@@ -67,7 +67,7 @@ export default function MeetingsPage() {
             Create New Meeting
           </Button>
           <ModalWrapper isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-            <CreateMeetingModal userId={session!.user.id} onClose={() => setIsModalOpen(false)} />
+            <CreateMeetingModal userId={session?.user.id} onClose={() => setIsModalOpen(false)} />
           </ModalWrapper>
           {/* <DatePickerDemo availableDates={availableDates} onDateSelect={setSelectedDate} /> */}
         </div>

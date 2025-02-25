@@ -12,7 +12,7 @@ export const ALLOWED_MIME_TYPES = [
   { type: "application/json", label: "JSON" },
 ];
 
-export default function UploadModal({ onClose, userId }: { onClose: () => void, userId: string }) {
+export default function UploadModal({ onClose, userId }: { onClose: () => void, userId?: string }) {
   const [loading, setLoading] = useState(false);
 
   const [isSecondModalOpen, setIsSecondModalOpen] = useState(false);

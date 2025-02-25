@@ -10,6 +10,15 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import ModalWrapper from "@/components/ModalWrapper";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 export default function Home() {
   const [data, setData] = useState([]);
@@ -95,13 +104,17 @@ export default function Home() {
           <h1 className="text-3xl text-gray-700 font-medium">
             Document manegment
           </h1>
-          <select
-            className="border rounded-lg px-2 mx-2 py-2 focus:outline-none focus:ring focus:ring-green-200"
-            onChange={(e) => setDocumentType(e.target.value)}
-          >
-            <option value="my">My Documents</option>
-            <option value="shared">Shared Documents</option>
-          </select>
+          <Select onValueChange={(value) => setDocumentType(value)} defaultValue={documentType}>
+            <SelectTrigger className="w-[200px] bg-white mt-1">
+              <SelectValue placeholder="Select a document type" />
+            </SelectTrigger>
+            <SelectContent className="bg-white">
+              <SelectGroup >
+                <SelectItem className="hover:bg-green-500 hover:text-white rounded-md" value="my">My Documents</SelectItem>
+                <SelectItem className="hover:bg-green-500 hover:text-white rounded-md" value="shared">Shared Documents</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
         </div>
         <div className="flex justify-between mt-4">
           <Button
@@ -120,7 +133,7 @@ export default function Home() {
           </Button>
             <ModalWrapper isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
               <UploadModal
-                userId={session!.user.id}
+                userId={session?.user.id}
                 onClose={() => setIsModalOpen(false)}
               />
             </ModalWrapper>

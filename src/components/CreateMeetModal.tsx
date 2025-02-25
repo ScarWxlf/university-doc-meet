@@ -12,7 +12,7 @@ export function CreateMeetingModal({
   userId,
 }: {
   onClose: () => void;
-  userId: string;
+  userId?: string;
 }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
