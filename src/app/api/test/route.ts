@@ -8,7 +8,7 @@ const livekitApiSecret = process.env.LIVEKIT_API_SECRET!;
 
 const roomService = new RoomServiceClient(livekitHost, livekitApiKey, livekitApiSecret);
 
-export async function GET(req: Request) {
+export async function GET() {
     const rooms = await roomService.listRooms();
     return NextResponse.json(rooms);
 }

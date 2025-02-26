@@ -1,11 +1,14 @@
-import { NextResponse } from "next/server";
 import { drive } from '@/lib/google'
+import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
+  try {
     const { userId } = await req.json();
-    // try {
     //     const { fileName } = await req.json();
-        const folderId = process!.env!.ROOT_FOLDER!;
+    const folderId = process.env.ROOT_FOLDER!;
+    if (!userId) {
+      return NextResponse.json({ error: "User ID is required" }, { status: 400 });
+    }
       
     //     // Метадані для файлу
     //     const fileMetadata = {
@@ -29,15 +32,23 @@ export async function POST(req: Request) {
     //     );
     //}
     const folderMetadata = {
-        name: `user-${userId}`,
-        mimeType: "application/vnd.google-apps.folder",
-        parents: [folderId], // ID головної папки
-      };
-    
-      const response = await drive.files.create({
-        requestBody: folderMetadata,
-        fields: "id",
-      });
-    
-      return response.data.id;
+      name: `user-${userId}`,
+      mimeType: "application/vnd.google-apps.folder",
+      parents: [folderId], // ID головної папки
+    };
+  
+    const response = await drive.files.create({
+      requestBody: folderMetadata,
+      fields: "id",
+    });
+  
+    if (!response.data.id) {
+      throw new Error("Failed to create folder");
+    }
+
+    return NextResponse.json({ folderId: response.data.id });
+  } catch (error) {
+    console.log("❌ Error creating folder on Google Drive:", error);
+    return NextResponse.json({ error: "Error creating folder" }, { status: 500 });
+  }
 }

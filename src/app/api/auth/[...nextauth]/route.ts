@@ -1,4 +1,4 @@
-import NextAuth, { Session } from 'next-auth';
+import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import { PrismaClient } from '@prisma/client';
@@ -16,7 +16,15 @@ declare module 'next-auth' {
       image: string | null;
     };
   }
+
+  interface Profile {
+    id: string;
+    name?: string;
+    email?: string;
+    picture?: string;
+  }
 }
+
 
 const handler = NextAuth({
   providers: [

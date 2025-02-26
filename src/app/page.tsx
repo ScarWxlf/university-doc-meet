@@ -15,7 +15,6 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
@@ -73,9 +72,7 @@ export default function Home() {
           const data = await response.json();
           setData(data.files);
           if (data.files) {
-            const uniqueDates = [
-              ...new Set(data.files.map((file) => new Date(file.createdTime))),
-            ];
+            const uniqueDates: Date[] = Array.from(new Set(data.files.map((file: { createdTime: string }) => new Date(file.createdTime))));
             setAvailableDates(uniqueDates);
           }
         }
@@ -94,7 +91,7 @@ export default function Home() {
   };
 
   const handleDeleteDocument = (fileId: string) => {
-    setData((prevData) => prevData.filter((file) => file.id !== fileId));
+    setData((prevData) => prevData.filter((file: { id: string }) => file.id !== fileId));
   };
 
   return (

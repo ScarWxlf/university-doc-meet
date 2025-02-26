@@ -74,8 +74,12 @@ export async function POST(req: Request) {
       if(!meetingStats) {
         return NextResponse.json({ message: "Meeting not found" });
       }
+      const formattedMeetingStats: meetingStats = {
+        ...meetingStats,
+        events: (meetingStats.events as unknown as Event[]) || [], // Перетворюємо `JsonValue` на масив `Event[]`
+      };
 
-      await generateMeetingReport(meetingStats!);
+      await generateMeetingReport(formattedMeetingStats);
     }
 
     return NextResponse.json({ message: "Event logged" });

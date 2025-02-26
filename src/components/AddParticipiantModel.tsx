@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { toast } from "react-toastify";
 import { IoPersonRemove } from "react-icons/io5";
@@ -16,7 +16,7 @@ export default function AddParticipiantModel({
   const [participants, setParticipants] = useState<{ id: number; image: string, email: string }[]>([]);
 
   
-  async function fetchParticipants() {
+  const fetchParticipants = React.useCallback(async () => {
     try {
       const response = await fetch(`/api/meetings/participants?meetingId=${meetingId}`);
       const data = await response.json();
@@ -29,11 +29,11 @@ export default function AddParticipiantModel({
       console.error("Error fetching participants:", error);
       toast.error("Error fetching participants.");
     }
-  }
-  useEffect(() => {
+  }, [meetingId]);
   
+  useEffect(() => {
     fetchParticipants();
-  }, []);
+  }, [fetchParticipants]);
 
   const handleAddParticipant = async () => {
     if (!email) {

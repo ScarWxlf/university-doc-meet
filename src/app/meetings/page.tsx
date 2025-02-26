@@ -18,6 +18,7 @@ export default function MeetingsPage() {
 
   const router = useRouter();
 
+  useEffect(() => {
   async function getMeetings() {
     setLoading(true);
     if (status !== "loading") {
@@ -36,7 +37,6 @@ export default function MeetingsPage() {
       setLoading(false);
     }
   }
-  useEffect(() => {
     getMeetings();
   }, [session, status, isModalOpen]);
 

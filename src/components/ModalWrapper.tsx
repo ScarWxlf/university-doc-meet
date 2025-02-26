@@ -27,7 +27,7 @@ export default function ModalWrapper({ isOpen, onClose, children }: ModalWrapper
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isOpen]);
+  }, [isOpen, onClose]);
 
   return (
     <div className={cn(

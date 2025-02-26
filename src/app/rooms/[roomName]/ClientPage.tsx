@@ -124,9 +124,10 @@ function VideoConferenceComponent(props: {
       adaptiveStream: { pixelDensity: 'screen' },
       dynacast: true,
     };
-  }, [props.userChoices, props.options.hq, props.options.codec]);
+  }, [props.userChoices, props.options.hq]);
+  //props.options.codec
 
-  const room = React.useMemo(() => new Room(roomOptions), []);
+  const room = React.useMemo(() => new Room(roomOptions), [roomOptions]);
 
 
   const connectOptions = React.useMemo((): RoomConnectOptions => {

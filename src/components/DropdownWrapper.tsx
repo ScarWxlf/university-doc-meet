@@ -26,7 +26,7 @@ export default function DropdownWrapper({ isOpen, onClose, children }: DropdownW
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isOpen]);
+  }, [isOpen, onClose]);
 
   return (
     <div ref={wrapperRef} className="relative pointer-events-none">

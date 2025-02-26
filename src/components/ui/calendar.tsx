@@ -66,7 +66,7 @@ export const Calendar = ({
 }
 
 
-function Chevron({ orientation = "left", ...props }) {
+function Chevron({ orientation = "left" }) {
   switch (orientation) {
       case "left":
           return <FiChevronLeft className="h-4 w-4" />;
