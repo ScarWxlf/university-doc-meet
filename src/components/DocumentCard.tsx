@@ -59,7 +59,7 @@ export default function DocumentCard({ file, userId, onDelete }: { file: Record<
         <div className="h-[1px] bg-gray-400"/>
         <div className="w-full flex justify-between items-center p-4">
             <div className='w-1/5 text-center'>{file.name}</div>
-            <div className='w-1/5 text-center'>John Doe</div>
+            <div className='w-1/5 text-center'>{file.userOwnerEmail}</div>
             <div className='w-1/5 text-center'>{
                 new Date(file.createdTime).toLocaleDateString() + ' ' + new Date(file.createdTime).toLocaleTimeString()
             }</div>

@@ -52,7 +52,16 @@ export async function POST(req: Request) {
         q: query,
         fields: "files(id, name, mimeType, createdTime, modifiedTime)",
       });
-      return NextResponse.json({ files: response.data.files });
+      const user = await prisma.user.findFirst({
+        where: {
+          id: parseInt(userId),
+        }
+      })
+      const files = response.data.files?.map((file) => ({
+        ...file,
+        userOwnerEmail: user?.email, 
+      }));
+      return NextResponse.json({ files: files });
     } else {
       if (!userEmail) {
         return NextResponse.json({ files: [] });
@@ -75,6 +84,7 @@ export async function POST(req: Request) {
       let files = responses.map((response, index) => ({
         ...response.data,
         userOwnerId: sharedFiles[index].userOwnerId.toString(),
+        userOwnerEmail: sharedFiles[index].userEmail,
       }));
 
       if (searchName) {
