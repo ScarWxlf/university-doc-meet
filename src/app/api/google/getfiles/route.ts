@@ -70,6 +70,13 @@ export async function POST(req: Request) {
         where: {
           userEmail: userEmail,
         },
+        include: {
+          owner: {
+            select: {
+              email: true,
+            }
+          }
+        }
       });
 
       const responses = await Promise.all(
@@ -84,7 +91,7 @@ export async function POST(req: Request) {
       let files = responses.map((response, index) => ({
         ...response.data,
         userOwnerId: sharedFiles[index].userOwnerId.toString(),
-        userOwnerEmail: sharedFiles[index].userEmail,
+        userOwnerEmail: sharedFiles[index].owner.email,
       }));
 
       if (searchName) {

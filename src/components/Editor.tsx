@@ -7,7 +7,6 @@ import * as quillToWord from "quill-to-word";
 import { toast } from "react-toastify";
 import { cn } from "@/lib/utils";
 import Loading from "@/components/ui/loading";
-import ShareFileModal from "@/components/ShareFileModal";
 import { useSession } from "next-auth/react";
 
 export default function Editor() {
@@ -17,12 +16,10 @@ export default function Editor() {
   const fileId = searchParams.get("fileId");
   const [fileName, setFileName] = useState("");
   const [mimeType, setMimeType] = useState("");
-  const [isOwner, setIsOwner] = useState(false);
   const editorRef = useRef<HTMLDivElement>(null);
   const quillRef = useRef<Quill | null>(null);
 
   const [loading, setLoading] = useState(true);
-  const [shareFileModalOpen, setShareFileModalOpen] = useState(false);
 
   useEffect(() => {
     if (!session) {
@@ -87,10 +84,9 @@ export default function Editor() {
         }
 
         if (response.ok) {
-          const { content, name, mimeType, isOwner } = await response.json();
+          const { content, name, mimeType } = await response.json();
           setFileName(name);
           setMimeType(mimeType);
-          setIsOwner(isOwner);
           const parsedContent =
             typeof content === "string" ? content : JSON.stringify(content);
           if (
@@ -166,15 +162,6 @@ export default function Editor() {
 
   return (
     <div className="p-4">
-      {shareFileModalOpen && (
-        <ShareFileModal
-          userId={session!.user!.id}
-          onClose={() => {
-            setShareFileModalOpen(false);
-          }}
-          documentId={fileId!}
-        />
-      )}
       {loading && <Loading />}
       <div className={cn(loading && "hidden")}>
         <div
@@ -184,17 +171,6 @@ export default function Editor() {
           )}
         >
           <h1 className="text-xl font-bold">{fileName}</h1>
-          {isOwner && (
-            <Button
-              variant="default"
-              size="default"
-              onClick={() => {
-                setShareFileModalOpen(true);
-              }}
-            >
-              Share
-            </Button>
-          )}
           <Button variant="default" size="default" onClick={handleSave}>
             Save
           </Button>

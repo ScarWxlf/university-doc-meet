@@ -4,9 +4,14 @@ import { FaRegTrashAlt } from "react-icons/fa";
 import { Button } from "./ui/button";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import { IoPersonAddSharp } from "react-icons/io5";
+import { useState } from "react";
+import ShareFileModal from "./ShareFileModal";
+import ModalWrapper from "./ModalWrapper";
 
 
 export default function DocumentCard({ file, userId, onDelete }: { file: Record<string, string>, userId: string, onDelete: (fileId: string) => void }) {
+    const [shareFileModalOpen, setShareFileModalOpen] = useState(false);
     const userOwnerId = file.userOwnerId || userId;
     const router = useRouter();
     const handleDownload = async () => {
@@ -58,6 +63,15 @@ export default function DocumentCard({ file, userId, onDelete }: { file: Record<
         <>
         <div className="h-[1px] bg-gray-400"/>
         <div className="w-full flex justify-between items-center p-4">
+          <ModalWrapper isOpen={shareFileModalOpen} onClose={() => setShareFileModalOpen(false)}>
+            <ShareFileModal
+              userId={userId}
+              onClose={() => {
+                setShareFileModalOpen(false);
+              }}
+              documentId={file.id}
+            />
+          </ModalWrapper>
             <div className='w-1/5 text-center'>{file.name}</div>
             <div className='w-1/5 text-center'>{file.userOwnerEmail}</div>
             <div className='w-1/5 text-center'>{
@@ -71,6 +85,14 @@ export default function DocumentCard({ file, userId, onDelete }: { file: Record<
                 <Button variant='fileAction' size='fileAction' onClick={handleDownload}>
                     <FiDownload size={24}/>
                 </Button>
+                {userOwnerId === userId && <Button
+                  variant="fileAction"
+                  size="none"
+                  className="h-6"
+                  onClick={() => setShareFileModalOpen(true)}
+                >
+                  <IoPersonAddSharp size={24} />
+                </Button>}
                 <Button variant='fileAction' size='fileAction' onClick={handleEdit}>
                     <MdEdit size={24}/>
                 </Button>
