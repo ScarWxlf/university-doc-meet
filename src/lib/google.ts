@@ -1,7 +1,9 @@
 import { google } from "googleapis";
 
+const credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT!);
+
 const auth = new google.auth.GoogleAuth({
-  keyFile: "service-account-key.json",
+  credentials,
   scopes: ["https://www.googleapis.com/auth/drive"],
 });
 
