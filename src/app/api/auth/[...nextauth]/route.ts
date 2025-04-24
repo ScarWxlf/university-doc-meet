@@ -108,7 +108,7 @@ const handler = NextAuth({
 
       return true;
     },
-    async jwt({ token, account, profile }) {
+    async jwt({ token, trigger, account, profile, session }) {
       if (account?.provider === 'google') {
         const dbUser = await prisma.user.findUnique({
           where: { email: profile!.email },
@@ -118,6 +118,10 @@ const handler = NextAuth({
           token.sub = dbUser.id.toString();
           token.picture = dbUser.image;
         }
+      }
+
+      if(trigger === 'update') {
+        token.name = session.name;
       }
   
       return token;
