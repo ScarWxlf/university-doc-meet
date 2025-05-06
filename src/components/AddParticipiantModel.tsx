@@ -106,6 +106,7 @@ export default function AddParticipiantModel({
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleAddParticipant()}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-green-200"
             placeholder="Enter email"
           />

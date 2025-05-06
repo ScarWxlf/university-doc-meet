@@ -84,12 +84,11 @@ export default function Editor() {
         }
 
         if (response.ok) {
-          const dataGet = await response.json();
-          console.log(dataGet);
-          setFileName(dataGet.name);
-          setMimeType(dataGet.mimeType);
+          const { content, name, mimeType } = await response.json();
+           setFileName(name);
+           setMimeType(mimeType);
           const parsedContent =
-            typeof dataGet.content === "string" ? dataGet.content : JSON.stringify(dataGet.content);
+          typeof content === "string" ? content : JSON.stringify(content);
           if (
             [
               "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -97,7 +96,7 @@ export default function Editor() {
             ].includes(mimeType)
           ) {
             quillRef.current?.enable();
-            quillRef.current?.clipboard.dangerouslyPasteHTML(dataGet.content);
+            quillRef.current?.clipboard.dangerouslyPasteHTML(content);
           } else if (["text/plain", "application/json"].includes(mimeType)) {
             if (typeof window !== "undefined") {
               const toolbar = document.querySelector(".ql-toolbar");
