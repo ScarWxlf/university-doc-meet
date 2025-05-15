@@ -4,9 +4,14 @@ import { toast } from "react-toastify";
 import { emailSchema } from "@/lib/validator";
 import { z } from "zod";
 
+type EmailEntry = {
+email: string;
+permission: "VIEW" | "EDIT";
+};
+
 export default function ShareFileModal({ onClose, documentId, userId }: { onClose: () => void; documentId: string; userId: string }) {
   const [loading, setLoading] = useState(false);
-  const [emails, setEmails] = useState<string[]>([]);
+  const [emails, setEmails] = useState<EmailEntry[]>([]);
   const [inputValue, setInputValue] = useState("");
 
   const handleAddEmail = async () => {
@@ -29,8 +34,8 @@ export default function ShareFileModal({ onClose, documentId, userId }: { onClos
         return;
       }
   
-      if (!emails.includes(email)) {
-        setEmails([...emails, email]);
+      if (!emails.find(e => e.email === email)) {
+        setEmails([...emails, { email, permission: "EDIT" }]);
         setInputValue("");
       } else {
         toast.info("Email already added.");
@@ -46,7 +51,7 @@ export default function ShareFileModal({ onClose, documentId, userId }: { onClos
   };
 
   const handleRemoveEmail = (emailToRemove: string) => {
-    setEmails(emails.filter(email => email !== emailToRemove));
+    setEmails(emails.filter(email => email.email !== emailToRemove));
   };
 
   const handleShare = async () => {
@@ -100,11 +105,25 @@ export default function ShareFileModal({ onClose, documentId, userId }: { onClos
             className="w-full border rounded-lg px-3 py-2"
           />
           <div className="flex flex-wrap gap-2 mt-2">
-            {emails.map(email => (
-              <span key={email} className="bg-gray-200 px-2 py-1 rounded-full flex items-center">
-                {email}
-                <button onClick={() => handleRemoveEmail(email)} className="ml-2 text-red-500">×</button>
-              </span>
+            {emails.map(({ email, permission }) => (
+              <div key={email} className="bg-gray-200 px-2 py-1 rounded-full flex items-center gap-2">
+                <span>{email}</span>
+                <select
+                  className="text-sm bg-white border rounded px-1 py-0.5"
+                  value={permission}
+                  onChange={(e) =>
+                    setEmails((prev) =>
+                      prev.map((entry) =>
+                        entry.email === email ? { ...entry, permission: e.target.value as "VIEW" | "EDIT" } : entry
+                      )
+                    )
+                  }
+                >
+                  <option value="VIEW">View</option>
+                  <option value="EDIT">Edit</option>
+                </select>
+                <button onClick={() => handleRemoveEmail(email)} className="text-red-500">×</button>
+              </div>
             ))}
           </div>
         </div>

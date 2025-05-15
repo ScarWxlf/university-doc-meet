@@ -40,6 +40,7 @@ export async function POST(req: Request) {
     }
 
     const isOwner = fileOwner !== null;
+    const permission = isOwner ? "EDIT" : fileShared?.permission ?? "VIEW";
     const response = await drive.files.get(
       {
         fileId,
@@ -66,6 +67,7 @@ export async function POST(req: Request) {
         name: metadata.data.name,
         isOwner,
         mimeType,
+        permission,
       });
     }
 
@@ -76,6 +78,7 @@ export async function POST(req: Request) {
       name: metadata.data.name,
       isOwner,
       mimeType,
+      permission,
     });
   } catch (error) {
     console.log("Error fetching file content:", error);

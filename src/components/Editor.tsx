@@ -16,6 +16,7 @@ export default function Editor() {
   const fileId = searchParams.get("fileId");
   const [fileName, setFileName] = useState("");
   const [mimeType, setMimeType] = useState("");
+  const [permission, setPermission] = useState<"EDIT" | "VIEW">("VIEW");
   const editorRef = useRef<HTMLDivElement>(null);
   const quillRef = useRef<Quill | null>(null);
 
@@ -84,9 +85,11 @@ export default function Editor() {
         }
 
         if (response.ok) {
-          const { content, name, mimeType } = await response.json();
+          const { content, name, mimeType, permission } = await response.json();
            setFileName(name);
            setMimeType(mimeType);
+           setPermission(permission);
+           
           const parsedContent =
           typeof content === "string" ? content : JSON.stringify(content);
           if (
@@ -95,6 +98,11 @@ export default function Editor() {
               "text/html",
             ].includes(mimeType)
           ) {
+            if(permission === "VIEW"){
+              const toolbar = document.querySelector(".ql-toolbar");
+              toolbar?.classList.add("disabled-toolbar");
+              toolbar?.setAttribute("data-tooltip", "You don't have permission to edit");
+            }
             quillRef.current?.enable();
             quillRef.current?.clipboard.dangerouslyPasteHTML(content);
           } else if (["text/plain", "application/json"].includes(mimeType)) {
@@ -171,7 +179,7 @@ export default function Editor() {
           )}
         >
           <h1 className="text-xl font-bold">{fileName}</h1>
-          <Button variant="default" size="default" onClick={handleSave}>
+          <Button variant="default" size="default" onClick={handleSave} disabled={permission === "VIEW"}>
             Save
           </Button>
         </div>
