@@ -3,6 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import { drive } from "@/lib/google";
 import { Document, Packer, Paragraph, TextRun } from "docx";
 import { Readable } from "stream";
+import { sendEmailReport } from "@/lib/email.mjs";
 
 const prisma = new PrismaClient();
 
@@ -68,15 +69,28 @@ export async function POST(req: Request) {
     }
 
     if (event.event === "room_finished") {
+      const updated = await prisma.meetingStats.updateMany({
+        where: {
+          roomName: event.room.name,
+          reportGenerated: false,
+        },
+        data: {
+          reportGenerated: true,
+        },
+      });
+
+      if (updated.count === 0) {
+        console.log(`⚠️ Duplicate room_finished ignored for ${event.room.name}`);
+        return NextResponse.json({ message: "Already processed" });
+      }
+
       const meetingStats = await prisma.meetingStats.findUnique({
         where: { roomName: event.room.name },
       });
-      if(!meetingStats) {
-        return NextResponse.json({ message: "Meeting not found" });
-      }
+
       const formattedMeetingStats: meetingStats = {
-        ...meetingStats,
-        events: (meetingStats.events as unknown as Event[]) || [], // Перетворюємо `JsonValue` на масив `Event[]`
+        ...meetingStats!,
+        events: (meetingStats!.events as unknown as Event[]) || [],
       };
 
       await generateMeetingReport(formattedMeetingStats);
@@ -168,6 +182,36 @@ const generateMeetingReport = async (meetingStats: meetingStats) => {
       ],
     });
 
+    const emailText = `📅 Meeting: ${meeting!.title}
+      🕒 Date: ${meeting!.date.toLocaleString()}
+      ⏳ Duration: ${durationFormatted}
+
+      👥 Participants:
+      ${Array.from(participantsMap.values())
+        .map(
+          (p) =>
+            `- ${p.name} (Joined: ${new Date(p.joinedAt).toLocaleString()}, Left: ${new Date(p.leftAt).toLocaleString()})`
+        )
+        .join("\n")}
+
+      📜 Event Logs:
+      ${events
+        .map(
+          (e) =>
+            `- ${new Date(e.timestamp).toLocaleString()}: ${e.event} - ${e.participant.name}`
+        )
+        .join("\n")}
+      `;
+
+    const user = await prisma.user.findUnique({ where: { id: createdById } });
+
+    if (user?.email) {
+      await sendEmailReport(
+        user.email,
+        `Meeting Report: ${meeting!.title}`,
+        emailText
+      );
+    }
     const buffer = await Packer.toBuffer(doc);
 
     const folderResponse = await drive.files.list({

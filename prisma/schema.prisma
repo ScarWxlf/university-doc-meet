@@ -71,7 +71,9 @@ model MeetingStats {
   createdById   Int 
   roomName      String    @unique
   events        Json      @default("[]")
+  reportGenerated Boolean @default(false)
 }
+
 
 model Notification {
   id          Int      @id @default(autoincrement())
