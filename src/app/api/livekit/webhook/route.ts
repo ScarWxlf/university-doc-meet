@@ -141,17 +141,30 @@ const generateMeetingReport = async (meetingStats: meetingStats) => {
         participantsMap.get(participant.id).leftAt = timestamp;
       }
     });
-    const formatDate = (date: Date) =>
-      date.toLocaleDateString("uk-UA");
+    const formatToKyiv = (utcString: string) => {
+      const date = new Date(utcString);
+      return date.toLocaleString("uk-UA", {
+        timeZone: "Europe/Kyiv",
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false,
+      }).replace(",", "");
+    };
 
-    const formatTime = (date: Date) =>
-      date.toLocaleTimeString("uk-UA", { hour12: false });
+    const joinedTimestamps = events
+      .filter((e) => e.event === "participant_joined")
+      .map((e) => new Date(e.timestamp).getTime());
 
-    const formatDateTime = (date: Date) =>
-      `${formatDate(date)}, ${formatTime(date)}`;
+    const leftTimestamps = events
+      .filter((e) => e.event === "participant_left")
+      .map((e) => new Date(e.timestamp).getTime());
 
-    const startTime = new Date(meeting!.date);
-    const endTime = new Date(events[events.length - 1].timestamp);
+    const startTime = new Date(Math.min(...joinedTimestamps));
+    const endTime = new Date(Math.max(...leftTimestamps));
     const durationMs = endTime.getTime() - startTime.getTime();
 
     const hours = Math.floor(durationMs / (1000 * 60 * 60));
@@ -175,15 +188,15 @@ const generateMeetingReport = async (meetingStats: meetingStats) => {
                 }),
               ],
             }),
-            new Paragraph(`🕒 Date: ${formatDateTime(meeting!.date)}`),
+            new Paragraph(`🕒 Date: ${formatToKyiv(meeting!.date.toISOString())}`),
             new Paragraph(`⏳ Duration: ${durationFormatted}`),
             new Paragraph("👥 Participants:\n"),
             ...Array.from(participantsMap.values()).map((p) =>
-              new Paragraph(`- ${p.name} (Joined: ${formatDateTime(new Date(p.joinedAt))}, Left: ${formatDateTime(new Date(p.leftAt))})`)
+              new Paragraph(`- ${p.name} (Joined: ${formatToKyiv(p.joinedAt)}, Left: ${formatToKyiv(p.leftAt)})`)
             ),
             new Paragraph("\n📜 Event Logs:\n"),
             ...events.map((e: Event) =>
-              new Paragraph(`- ${formatDateTime(new Date(e.timestamp))}: ${e.event} - ${e.participant.name}`)
+              new Paragraph(`- ${formatToKyiv(e.timestamp)}: ${e.event} - ${e.participant.name}`)
             ),
           ],
         },
