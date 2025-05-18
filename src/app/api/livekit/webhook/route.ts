@@ -141,10 +141,18 @@ const generateMeetingReport = async (meetingStats: meetingStats) => {
         participantsMap.get(participant.id).leftAt = timestamp;
       }
     });
+    const formatDate = (date: Date) =>
+      date.toLocaleDateString("uk-UA");
 
-    const now = new Date();
+    const formatTime = (date: Date) =>
+      date.toLocaleTimeString("uk-UA", { hour12: false });
+
+    const formatDateTime = (date: Date) =>
+      `${formatDate(date)}, ${formatTime(date)}`;
+
     const startTime = new Date(meeting!.date);
-    const durationMs = now.getTime() - startTime.getTime();
+    const endTime = new Date(events[events.length - 1].timestamp);
+    const durationMs = endTime.getTime() - startTime.getTime();
 
     const hours = Math.floor(durationMs / (1000 * 60 * 60));
     const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
@@ -167,15 +175,15 @@ const generateMeetingReport = async (meetingStats: meetingStats) => {
                 }),
               ],
             }),
-            new Paragraph(`🕒 Date: ${meeting!.date.toLocaleString()}`),
+            new Paragraph(`🕒 Date: ${formatDateTime(meeting!.date)}`),
             new Paragraph(`⏳ Duration: ${durationFormatted}`),
             new Paragraph("👥 Participants:\n"),
             ...Array.from(participantsMap.values()).map((p) =>
-              new Paragraph(`- ${p.name} (Joined: ${new Date(p.joinedAt).toLocaleString()}, Left: ${new Date(p.leftAt).toLocaleString()})`)
+              new Paragraph(`- ${p.name} (Joined: ${formatDateTime(new Date(p.joinedAt))}, Left: ${formatDateTime(new Date(p.leftAt))})`)
             ),
             new Paragraph("\n📜 Event Logs:\n"),
             ...events.map((e: Event) =>
-              new Paragraph(`- ${new Date(e.timestamp).toLocaleString()}: ${e.event} - ${e.participant.name}`)
+              new Paragraph(`- ${formatDateTime(new Date(e.timestamp))}: ${e.event} - ${e.participant.name}`)
             ),
           ],
         },

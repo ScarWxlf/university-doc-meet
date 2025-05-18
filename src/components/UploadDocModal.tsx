@@ -10,14 +10,24 @@ export const ALLOWED_MIME_TYPES = [
   { type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document", label: "DOCX" },
   { type: "text/html", label: "HTML" },
   { type: "application/json", label: "JSON" },
+  { type: "image/jpeg", label: "JPEG" },
+  { type: "image/png", label: "PNG" },
+  { type: "application/pdf", label: "PDF" },
 ];
 
-export default function UploadModal({ onClose, userId }: { onClose: () => void, userId?: string }) {
+export const ALLOWED_MIME_TYPES_FOR_CREATE =[
+  { type: "text/plain", label: "TXT" },
+  { type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document", label: "DOCX" },
+  { type: "text/html", label: "HTML" },
+  { type: "application/json", label: "JSON" },
+]
+
+export default function UploadModal({ onClose, userId, userEmail }: { onClose: () => void, userId?: string, userEmail?: string }) {
   const [loading, setLoading] = useState(false);
 
   const [isSecondModalOpen, setIsSecondModalOpen] = useState(false);
   const [docName, setDocName] = useState("");
-  const [docType, setDocType] = useState(ALLOWED_MIME_TYPES[0].type);
+  const [docType, setDocType] = useState(ALLOWED_MIME_TYPES_FOR_CREATE[0].type);
   const router = useRouter();
 
   const handleCreateBlankDocument = async () => {
@@ -56,7 +66,7 @@ export default function UploadModal({ onClose, userId }: { onClose: () => void, 
     }
 
     if (!ALLOWED_MIME_TYPES.some(({ type }) => type === file.type)) {
-      toast.error("Unsupported file type. Supported formats: TXT, DOCX, JSON, HTML.");
+      toast.error("Unsupported file type. Supported formats: TXT, DOCX, JSON, HTML, JPEG, PNG, PDF.");
       setLoading(false);
       return;
     }
@@ -84,6 +94,7 @@ export default function UploadModal({ onClose, userId }: { onClose: () => void, 
             mimeType: file.type,
             content: base64File,
             userId,
+            userEmail,
           }),
         });
         setLoading(false);
@@ -165,7 +176,7 @@ export default function UploadModal({ onClose, userId }: { onClose: () => void, 
             onChange={(e) => setDocType(e.target.value)}
             className="w-full border p-2 rounded mt-1"
           >
-            {ALLOWED_MIME_TYPES.map(({ type, label }) => (
+            {ALLOWED_MIME_TYPES_FOR_CREATE.map(({ type, label }) => (
               <option key={type} value={type}>
                 {label}
               </option>

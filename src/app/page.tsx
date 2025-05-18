@@ -1,6 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { DatePickerDemo } from "@/components/ui/datepicker";
+import MediaDocumentCard from "@/components/MediaDocumentCard";
 import DocumentCard from "@/components/DocumentCard";
 import Loading from "@/components/ui/loading";
 import UploadModal from "@/components/UploadDocModal";
@@ -19,8 +20,15 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
+type FileType = {
+  id: string;
+  name: string;
+  createdTime: string;
+  // add other properties as needed
+};
+
 export default function Home() {
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<FileType[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { data: session, status } = useSession();
@@ -31,6 +39,14 @@ export default function Home() {
 
   const router = useRouter();
 
+  const isMediaFile = (name: string) => {
+    return (
+      name.endsWith(".pdf") ||
+      name.endsWith(".jpeg") ||
+      name.endsWith(".jpg") ||
+      name.endsWith(".png")
+    );
+  };
   // const [debouncedSearch, setDebouncedSearch] = useState("");
   // useEffect(() => {
   //   const timer = setTimeout(() => {
@@ -131,6 +147,7 @@ export default function Home() {
             <ModalWrapper isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
               <UploadModal
                 userId={session?.user.id}
+                userEmail={session?.user.email ?? undefined}
                 onClose={() => setIsModalOpen(false)}
               />
             </ModalWrapper>
@@ -168,9 +185,25 @@ export default function Home() {
         {loading ? (
           <Loading />
         ) : data && data.length > 0 && session !== null ? (
-          data.map((file, index) => (
-            <DocumentCard key={index} file={file} userId={session.user.id} onDelete={handleDeleteDocument} />
-          ))
+          data.map((file, index) => {
+          const name = file.name.toLowerCase();
+          return isMediaFile(name) ? (
+            <MediaDocumentCard
+              key={index}
+              file={file}
+              userId={session.user.id}
+              onDelete={handleDeleteDocument}
+            />
+          ) : (
+            <DocumentCard
+              key={index}
+              file={file}
+              userId={session.user.id}
+              onDelete={handleDeleteDocument}
+            />
+          );
+        })
+
         ) : (
           <p className="text-center text-lg p-4">No documents found 😥</p>
         )}

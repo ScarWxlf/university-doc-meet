@@ -1,3 +1,4 @@
+import { drive } from "@/lib/google";
 import { PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
 
@@ -12,6 +13,15 @@ export async function POST(req: Request) {
 
     for (const { email, permission } of emails) {
       const user = await prisma.user.findUnique({ where: { email } });
+      await drive.permissions.create({
+        fileId: fileId,
+        requestBody: {
+          type: "user",
+          role: "reader",
+          emailAddress: email,
+        },
+        fields: "id",
+      });
       if (!user) continue;
 
       const alreadyShared = await prisma.fileShare.findFirst({
