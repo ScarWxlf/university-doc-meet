@@ -204,14 +204,14 @@ const generateMeetingReport = async (meetingStats: meetingStats) => {
     });
 
     const emailText = `📅 Meeting: ${meeting!.title}
-      🕒 Date: ${meeting!.date.toLocaleString()}
+      🕒 Date: ${formatToKyiv(meeting!.date.toISOString())}
       ⏳ Duration: ${durationFormatted}
 
       👥 Participants:
       ${Array.from(participantsMap.values())
         .map(
           (p) =>
-            `- ${p.name} (Joined: ${new Date(p.joinedAt).toLocaleString()}, Left: ${new Date(p.leftAt).toLocaleString()})`
+            `- ${p.name} (Joined: ${formatToKyiv(p.joinedAt)}, Left: ${formatToKyiv(p.leftAt)})`
         )
         .join("\n")}
 
@@ -219,7 +219,7 @@ const generateMeetingReport = async (meetingStats: meetingStats) => {
       ${events
         .map(
           (e) =>
-            `- ${new Date(e.timestamp).toLocaleString()}: ${e.event} - ${e.participant.name}`
+            `- ${formatToKyiv(e.timestamp)}: ${e.event} - ${e.participant.name}`
         )
         .join("\n")}
       `;

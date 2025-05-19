@@ -10,9 +10,11 @@ import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { loginSchema } from "@/lib/validator";
 import { z } from "zod";
+import { IoMdEye, IoMdEyeOff } from "react-icons/io";
 
 export default function SignIn() {
   const [errors, setErrors] = useState<Record<string, string[] | undefined>>({});
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -104,12 +106,22 @@ export default function SignIn() {
                   ))}
                 </div>
               )}
-            <input
-              name="password"
-              type="password"
-              placeholder="Password"
-              className="border-2 border-gray-300 rounded-md p-2 my-2 w-full"
-            />
+            <div className="relative w-full my-2">
+              <input
+                name="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                id="password"
+                className="border-2 border-gray-300 rounded-md p-2 w-full pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:scale-125 transition-transform duration-200"
+              >
+                {showPassword ? <IoMdEyeOff size={20} /> : <IoMdEye size={20} />}
+              </button>
+            </div>
             {errors?.password && (
                 <div className="flex flex-col text-red-500 text-sm text-start w-full">
                   {errors.password.map((error) => (
