@@ -175,7 +175,7 @@ export default function Home() {
         </div>
       </div>
       <div className="bg-white px-3 rounded-xl shadow-xl">
-        <div className="w-full flex items-center p-4">
+        <div className="w-full  hidden lg:flex items-center p-4 ">
           <p className="w-1/5 text-center">Document Name</p>
           <p className="w-1/5 text-center">Owner</p>
           <p className="w-1/5 text-center">Created At</p>
@@ -190,6 +190,7 @@ export default function Home() {
           return isMediaFile(name) ? (
             <MediaDocumentCard
               key={index}
+              index={index}
               file={file}
               userId={session.user.id}
               onDelete={handleDeleteDocument}
@@ -197,6 +198,7 @@ export default function Home() {
           ) : (
             <DocumentCard
               key={index}
+              index={index}
               file={file}
               userId={session.user.id}
               onDelete={handleDeleteDocument}

@@ -9,11 +9,11 @@ import { useState } from "react";
 import ShareFileModal from "./ShareFileModal";
 import ModalWrapper from "./ModalWrapper";
 
-
-export default function DocumentCard({ file, userId, onDelete }: { file: Record<string, string>, userId: string, onDelete: (fileId: string) => void }) {
+export default function DocumentCard({ index, file, userId, onDelete }: { index: number, file: Record<string, string>, userId: string, onDelete: (fileId: string) => void }) {
     const [shareFileModalOpen, setShareFileModalOpen] = useState(false);
     const userOwnerId = file.userOwnerId || userId;
     const router = useRouter();
+    
     const handleDownload = async () => {
         try {
           const response = await fetch(`/api/google/download`, {
@@ -59,10 +59,13 @@ export default function DocumentCard({ file, userId, onDelete }: { file: Record<
           console.error("Error deleting file:", (error as Error).message);
         }
       }
+
     return (
         <>
-        <div className="h-[1px] bg-gray-400"/>
-        <div className="w-full flex justify-between items-center p-4">
+        {index !== 0 && (<div className="h-[1px] bg-gray-400"/>)}
+
+        {/* Desktop версія */}
+        <div className="hidden lg:flex w-full justify-between items-center p-4">
           <ModalWrapper isOpen={shareFileModalOpen} onClose={() => setShareFileModalOpen(false)}>
             <ShareFileModal
               userId={userId}
@@ -72,12 +75,13 @@ export default function DocumentCard({ file, userId, onDelete }: { file: Record<
               documentId={file.id}
             />
           </ModalWrapper>
-            <div className='w-1/5 text-center'>{file.name}</div>
-            <div className='w-1/5 text-center'>{file.userOwnerEmail}</div>
-            <div className='w-1/5 text-center'>{
+          
+            <div className='w-1/5 text-center truncate px-2'>{file.name}</div>
+            <div className='w-1/5 text-center truncate px-2'>{file.userOwnerEmail}</div>
+            <div className='w-1/5 text-center text-sm px-2'>{
                 new Date(file.createdTime).toLocaleDateString() + ' ' + new Date(file.createdTime).toLocaleTimeString()
             }</div>
-            <div className='w-1/5 text-center'>{
+            <div className='w-1/5 text-center text-sm px-2'>{
                 (new Date().getTime() - new Date(file.modifiedTime).getTime() < 86400000) ? 'Today' :
                 new Date(file.modifiedTime).toLocaleDateString() + ' ' + new Date(file.modifiedTime).toLocaleTimeString()
             }</div>
@@ -98,6 +102,99 @@ export default function DocumentCard({ file, userId, onDelete }: { file: Record<
                 </Button>
                 {userOwnerId === userId && <Button className="hover:text-red-500" variant='fileAction' size='fileAction' onClick={handleDelete}>
                     <FaRegTrashAlt size={24} />
+                </Button>}
+            </div>
+        </div>
+
+        {/* Tablet версія */}
+        <div className="hidden md:flex lg:hidden w-full flex-col p-4 space-y-3">
+          <ModalWrapper isOpen={shareFileModalOpen} onClose={() => setShareFileModalOpen(false)}>
+            <ShareFileModal
+              userId={userId}
+              onClose={() => {
+                setShareFileModalOpen(false);
+              }}
+              documentId={file.id}
+            />
+          </ModalWrapper>
+          
+          <div className="flex justify-between items-start">
+            <div className="flex-1">
+              <div className="font-medium text-lg truncate pr-4">{file.name}</div>
+              <div className="text-sm text-gray-600 truncate">{file.userOwnerEmail}</div>
+            </div>
+            <div className="flex gap-2 flex-shrink-0">
+                <Button variant='fileAction' size='fileAction' onClick={handleDownload}>
+                    <FiDownload size={20}/>
+                </Button>
+                {userOwnerId === userId && <Button
+                  variant="fileAction"
+                  size="none"
+                  className="h-6"
+                  onClick={() => setShareFileModalOpen(true)}
+                >
+                  <IoPersonAddSharp size={20} />
+                </Button>}
+                <Button variant='fileAction' size='fileAction' onClick={handleEdit}>
+                    <MdEdit size={20}/>
+                </Button>
+                {userOwnerId === userId && <Button className="hover:text-red-500" variant='fileAction' size='fileAction' onClick={handleDelete}>
+                    <FaRegTrashAlt size={20} />
+                </Button>}
+            </div>
+          </div>
+          
+          <div className="flex justify-between text-sm text-gray-500">
+            <div>Created At: {new Date(file.createdTime).toLocaleDateString()}</div>
+            <div>Last Modified: {
+                (new Date().getTime() - new Date(file.modifiedTime).getTime() < 86400000) ? 'Сьогодні' :
+                new Date(file.modifiedTime).toLocaleDateString()
+            }</div>
+          </div>
+        </div>
+
+        {/* Mobile версія */}
+        <div className="flex md:hidden w-full flex-col p-4 space-y-3">
+          <ModalWrapper isOpen={shareFileModalOpen} onClose={() => setShareFileModalOpen(false)}>
+            <ShareFileModal
+              userId={userId}
+              onClose={() => {
+                setShareFileModalOpen(false);
+              }}
+              documentId={file.id}
+            />
+          </ModalWrapper>
+          
+          <div className="flex flex-col space-y-2">
+            <div className="font-medium text-lg break-words">{file.name}</div>
+            <div className="text-sm text-gray-600 break-words">{file.userOwnerEmail}</div>
+          </div>
+          
+          <div className="flex flex-col space-y-1 text-sm text-gray-500">
+            <div>Created At: {new Date(file.createdTime).toLocaleDateString()}</div>
+            <div>Last Modified: {
+                (new Date().getTime() - new Date(file.modifiedTime).getTime() < 86400000) ? 'Сьогодні' :
+                new Date(file.modifiedTime).toLocaleDateString()
+            }</div>
+          </div>
+          
+          <div className="flex justify-center gap-3 pt-2">
+                <Button variant='fileAction' size='fileAction' onClick={handleDownload}>
+                    <FiDownload size={20}/>
+                </Button>
+                {userOwnerId === userId && <Button
+                  variant="fileAction"
+                  size="none"
+                  className="h-6"
+                  onClick={() => setShareFileModalOpen(true)}
+                >
+                  <IoPersonAddSharp size={20} />
+                </Button>}
+                <Button variant='fileAction' size='fileAction' onClick={handleEdit}>
+                    <MdEdit size={20}/>
+                </Button>
+                {userOwnerId === userId && <Button className="hover:text-red-500" variant='fileAction' size='fileAction' onClick={handleDelete}>
+                    <FaRegTrashAlt size={20} />
                 </Button>}
             </div>
         </div>
