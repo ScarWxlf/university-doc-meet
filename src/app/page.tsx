@@ -18,7 +18,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 
 type FileType = {
   id: string;
@@ -71,7 +71,7 @@ export default function Home() {
     async function getFiles() {
       setLoading(true);
       if (status !== "loading") {
-        if(session !== null){
+        if (session !== null) {
           const response = await fetch("/api/google/getfiles", {
             method: "POST",
             headers: {
@@ -88,7 +88,13 @@ export default function Home() {
           const data = await response.json();
           setData(data.files);
           if (data.files) {
-            const uniqueDates: Date[] = Array.from(new Set(data.files.map((file: { createdTime: string }) => new Date(file.createdTime))));
+            const uniqueDates: Date[] = Array.from(
+              new Set(
+                data.files.map(
+                  (file: { createdTime: string }) => new Date(file.createdTime)
+                )
+              )
+            );
             setAvailableDates(uniqueDates);
           }
         }
@@ -107,31 +113,133 @@ export default function Home() {
   };
 
   const handleDeleteDocument = (fileId: string) => {
-    setData((prevData) => prevData.filter((file: { id: string }) => file.id !== fileId));
+    setData((prevData) =>
+      prevData.filter((file: { id: string }) => file.id !== fileId)
+    );
   };
 
   return (
-    <div className="flex flex-col px-8 bg-gray-100 h-full">
-      <div className="p-6">
-        <div className="flex gap-2">
-          <h1 className="text-3xl text-gray-700 font-medium">
-            Document manegment
-          </h1>
-          <Select onValueChange={(value) => setDocumentType(value)} defaultValue={documentType}>
-            <SelectTrigger className="w-[200px] bg-white mt-1">
-              <SelectValue placeholder="Select a document type" />
-            </SelectTrigger>
-            <SelectContent className="bg-white">
-              <SelectGroup >
-                <SelectItem className="hover:bg-green-500 hover:text-white rounded-md" value="my">My Documents</SelectItem>
-                <SelectItem className="hover:bg-green-500 hover:text-white rounded-md" value="shared">Shared Documents</SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
+    <div className="flex flex-col flex-grow px-8 bg-gray-100 h-full pb-2">
+      <div className="p-4 md:p-6">
+        <ModalWrapper
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+        >
+          <UploadModal
+            userId={session?.user.id}
+            userEmail={session?.user.email ?? undefined}
+            onClose={() => setIsModalOpen(false)}
+          />
+        </ModalWrapper>
+        {/* Desktop/Tablet версія */}
+        <div className="hidden md:block">
+          <div className="flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-2">
+            <h1 className="text-2xl lg:text-3xl text-gray-700 font-medium">
+              Document management
+            </h1>
+            <Select
+              onValueChange={(value) => setDocumentType(value)}
+              defaultValue={documentType}
+            >
+              <SelectTrigger className="w-full lg:w-[200px] bg-white">
+                <SelectValue placeholder="Select a document type" />
+              </SelectTrigger>
+              <SelectContent className="bg-white">
+                <SelectGroup>
+                  <SelectItem
+                    className="hover:bg-green-500 hover:text-white rounded-md"
+                    value="my"
+                  >
+                    My Documents
+                  </SelectItem>
+                  <SelectItem
+                    className="hover:bg-green-500 hover:text-white rounded-md"
+                    value="shared"
+                  >
+                    Shared Documents
+                  </SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mt-4">
+            <Button
+              className="rounded-full flex gap-2 w-full lg:w-auto"
+              variant="default"
+              size="default"
+              onClick={handleUploadDocument}
+            >
+              <Image
+                src="/images/add-doc-button.svg"
+                width={20}
+                height={20}
+                alt="add document"
+              />
+              Add New Document
+            </Button>
+
+            <div className="flex flex-col sm:flex-row gap-4 lg:gap-4">
+              <DatePickerDemo
+                availableDates={availableDates}
+                onDateSelect={setSelectedDate}
+              />
+              <div className="relative flex">
+                <Image
+                  className="absolute top-1/2 -translate-y-1/2 left-2"
+                  src="/images/search.svg"
+                  width={20}
+                  height={20}
+                  alt="search"
+                />
+                <input
+                  type="text"
+                  placeholder="Search"
+                  className="border-b border-gray-400 px-8 py-2 bg-transparent focus:outline-none focus:border-black w-full min-w-[200px]"
+                  value={searchName}
+                  onChange={(e) => setSearchName(e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="flex justify-between mt-4">
+
+        {/* Mobile версія */}
+        <div className="block md:hidden space-y-4">
+          {/* Заголовок та селект */}
+          <div className="space-y-3">
+            <h1 className="text-xl text-gray-700 font-medium text-center">
+              Document Management
+            </h1>
+            <Select
+              onValueChange={(value) => setDocumentType(value)}
+              defaultValue={documentType}
+            >
+              <SelectTrigger className="w-full bg-white">
+                <SelectValue placeholder="Select document type" />
+              </SelectTrigger>
+              <SelectContent className="bg-white">
+                <SelectGroup>
+                  <SelectItem
+                    className="hover:bg-green-500 hover:text-white rounded-md"
+                    value="my"
+                  >
+                    My Documents
+                  </SelectItem>
+                  <SelectItem
+                    className="hover:bg-green-500 hover:text-white rounded-md"
+                    value="shared"
+                  >
+                    Shared Documents
+                  </SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Кнопка додавання */}
           <Button
-            className="rounded-full flex gap-2"
+            className="rounded-full flex gap-2 w-full justify-center"
             variant="default"
             size="default"
             onClick={handleUploadDocument}
@@ -144,33 +252,34 @@ export default function Home() {
             />
             Add New Document
           </Button>
-            <ModalWrapper isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-              <UploadModal
-                userId={session?.user.id}
-                userEmail={session?.user.email ?? undefined}
-                onClose={() => setIsModalOpen(false)}
+
+          {/* Пошук та фільтр дат */}
+          <div className="space-y-3">
+            {/* Пошук */}
+            <div className="relative flex">
+              <Image
+                className="absolute top-1/2 -translate-y-1/2 left-3"
+                src="/images/search.svg"
+                width={18}
+                height={18}
+                alt="search"
               />
-            </ModalWrapper>
-          <DatePickerDemo
-            availableDates={availableDates}
-            onDateSelect={setSelectedDate}
-          />
-          <div className="relative flex">
-            {/* search */}
-            <Image
-              className="absolute top-1/2 -translate-y-1/2 left-1"
-              src="/images/search.svg"
-              width={20}
-              height={20}
-              alt="search"
-            />
-            <input
-              type="text"
-              placeholder="Search"
-              className="border-b border-gray-400 px-7 py-1 bg-transparent focus:outline-none focus:border-black"
-              value={searchName}
-              onChange={(e) => setSearchName(e.target.value)}
-            />
+              <input
+                type="text"
+                placeholder="Search documents..."
+                className="border border-gray-300 rounded-lg px-10 py-3 bg-white focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 w-full"
+                value={searchName}
+                onChange={(e) => setSearchName(e.target.value)}
+              />
+            </div>
+
+            {/* Фільтр дат */}
+            <div className="w-full">
+              <DatePickerDemo
+                availableDates={availableDates}
+                onDateSelect={setSelectedDate}
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -186,26 +295,25 @@ export default function Home() {
           <Loading />
         ) : data && data.length > 0 && session !== null ? (
           data.map((file, index) => {
-          const name = file.name.toLowerCase();
-          return isMediaFile(name) ? (
-            <MediaDocumentCard
-              key={index}
-              index={index}
-              file={file}
-              userId={session.user.id}
-              onDelete={handleDeleteDocument}
-            />
-          ) : (
-            <DocumentCard
-              key={index}
-              index={index}
-              file={file}
-              userId={session.user.id}
-              onDelete={handleDeleteDocument}
-            />
-          );
-        })
-
+            const name = file.name.toLowerCase();
+            return isMediaFile(name) ? (
+              <MediaDocumentCard
+                key={index}
+                index={index}
+                file={file}
+                userId={session.user.id}
+                onDelete={handleDeleteDocument}
+              />
+            ) : (
+              <DocumentCard
+                key={index}
+                index={index}
+                file={file}
+                userId={session.user.id}
+                onDelete={handleDeleteDocument}
+              />
+            );
+          })
         ) : (
           <p className="text-center text-lg p-4">No documents found 😥</p>
         )}

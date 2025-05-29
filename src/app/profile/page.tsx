@@ -53,7 +53,13 @@ export default function Profile() {
     try {
       setLoading(true);
       setErrors({});
-      profileUpdateSchema.parse({ email:form.email, password:form.password, confirmPassword:form.confirmPassword, name:form.name });
+      profileUpdateSchema.parse({ 
+        email: form.email, 
+        password: form.password, 
+        confirmPassword: form.confirmPassword, 
+        name: form.name 
+      });
+      
       const response = await fetch("/api/profile", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -68,7 +74,7 @@ export default function Profile() {
       if (response.ok) {
         toast.success("Profile updated successfully!");
         setForm((prev) => ({ ...prev, password: "", confirmPassword: "" }));
-        await update({ name: form.name})
+        await update({ name: form.name });
       } else {
         toast.error(result.error || "Failed to update profile");
       }
@@ -85,8 +91,10 @@ export default function Profile() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gray-100 px-16">
-      <div className="flex flex-col items-center bg-white p-6 px-16 my-4 rounded-lg shadow-md w-full space-y-4">
+    <div className="flex flex-col min-h-screen bg-gray-100 px-4 sm:px-8 lg:px-16 py-4">
+      <div className="flex flex-col items-center bg-white p-4 sm:p-6 lg:p-8 xl:px-16 my-2 sm:my-4 rounded-lg shadow-md w-full max-w-6xl mx-auto space-y-4 sm:space-y-6">
+        
+        {/* User Info Section */}
         {status === "authenticated" && (
           <div className="flex flex-col items-center gap-3 w-full">
             <Image
@@ -96,78 +104,107 @@ export default function Profile() {
               height={120}
               alt="avatar"
             />
-            <p className="text-2xl">{user?.name}</p>
+            <p className="text-xl sm:text-2xl font-medium text-center">{user?.name}</p>
           </div>
         )}
 
-        <p className="text-lg mb-6">Update your nickname and password</p>
+        <p className="text-base sm:text-lg mb-2 sm:mb-6 text-center text-gray-600">
+          Update your nickname and password
+        </p>
 
-        <div className="flex justify-center gap-3 w-full">
-          <div className="w-2/4">
-            <label className="block font-medium mb-1">Email</label>
-            <input
-              type="email"
-              name="email"
-              value={form.email}
-              onChange={handleChange}
-              disabled
-              className="border-2 border-gray-300 rounded-md p-2 my-2 w-full bg-gray-100"
-            />
+        {/* Form Section */}
+        <div className="flex flex-col lg:flex-row justify-center gap-4 lg:gap-6 w-full max-w-4xl">
+          
+          {/* Left Column - Email and Name */}
+          <div className="w-full lg:w-1/2 space-y-4">
+            <div>
+              <label className="block font-medium mb-2 text-sm sm:text-base">
+                Email
+              </label>
+              <input
+                type="email"
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+                disabled
+                className="border-2 border-gray-300 rounded-md p-2 sm:p-3 w-full bg-gray-100 text-sm sm:text-base"
+              />
+            </div>
 
-            <label className="block font-medium mb-1">New Name</label>
-            <input
-              type="text"
-              name="name"
-              placeholder="Enter new name"
-              value={form.name}
-              onChange={handleChange}
-              className="border-2 border-gray-300 rounded-md p-2 my-2 w-full"
-            />
-            {errors?.name && (
-                <div className="flex flex-col text-red-500 text-sm text-start w-full">
+            <div>
+              <label className="block font-medium mb-2 text-sm sm:text-base">
+                New Name
+              </label>
+              <input
+                type="text"
+                name="name"
+                placeholder="Enter new name"
+                value={form.name}
+                onChange={handleChange}
+                className="border-2 border-gray-300 rounded-md p-2 sm:p-3 w-full text-sm sm:text-base focus:border-blue-500 focus:outline-none"
+              />
+              {errors?.name && (
+                <div className="flex flex-col text-red-500 text-xs sm:text-sm text-start w-full mt-2">
                   {errors.name.map((error) => (
                     <div key={error} className="flex items-center gap-2">
-                      <div className="h-1 w-1 rounded-full bg-black"></div>
+                      <div className="h-1 w-1 rounded-full bg-red-500 flex-shrink-0"></div>
                       <div className="my-1">{error}</div>
                     </div>
                   ))}
                 </div>
               )}
+            </div>
           </div>
 
-          <div className="w-2/4">
-            <label className="block font-medium mb-1">New Password</label>
-            <input
-              type="password"
-              name="password"
-              placeholder="Enter new password"
-              value={form.password}
-              onChange={handleChange}
-              className="border-2 border-gray-300 rounded-md p-2 my-2 w-full"
-            />
-            <label className="block font-medium mb-1">Confirm Password</label>
-            <input
-              type="password"
-              name="confirmPassword"
-              placeholder="Confirm new password"
-              value={form.confirmPassword}
-              onChange={handleChange}
-              className="border-2 border-gray-300 rounded-md p-2 my-2 w-full"
-            />
+          {/* Right Column - Password Fields */}
+          <div className="w-full lg:w-1/2 space-y-4">
+            <div>
+              <label className="block font-medium mb-2 text-sm sm:text-base">
+                New Password
+              </label>
+              <input
+                type="password"
+                name="password"
+                placeholder="Enter new password"
+                value={form.password}
+                onChange={handleChange}
+                className="border-2 border-gray-300 rounded-md p-2 sm:p-3 w-full text-sm sm:text-base focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+            
+            <div>
+              <label className="block font-medium mb-2 text-sm sm:text-base">
+                Confirm Password
+              </label>
+              <input
+                type="password"
+                name="confirmPassword"
+                placeholder="Confirm new password"
+                value={form.confirmPassword}
+                onChange={handleChange}
+                className="border-2 border-gray-300 rounded-md p-2 sm:p-3 w-full text-sm sm:text-base focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+            
             {errors?.password && (
-                <div className="flex flex-col text-red-500 text-sm text-start w-full">
-                  {errors.password.map((error) => (
-                    <div key={error} className="flex items-center gap-2">
-                      <div className="h-1 w-1 rounded-full bg-black"></div>
-                      <div className="my-1">{error}</div>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <div className="flex flex-col text-red-500 text-xs sm:text-sm text-start w-full mt-2">
+                {errors.password.map((error) => (
+                  <div key={error} className="flex items-center gap-2">
+                    <div className="h-1 w-1 rounded-full bg-red-500 flex-shrink-0"></div>
+                    <div className="my-1">{error}</div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
-        <Button className="w-2/5 mt-4" onClick={handleSave} disabled={loading}>
+        {/* Save Button */}
+        <Button 
+          className="w-full sm:w-80 lg:w-96 mt-4 sm:mt-6 py-2 sm:py-3 text-sm sm:text-base" 
+          onClick={handleSave} 
+          disabled={loading}
+        >
           {loading ? "Saving..." : "Save Changes"}
         </Button>
       </div>

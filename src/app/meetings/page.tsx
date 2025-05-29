@@ -52,31 +52,37 @@ export default function MeetingsPage() {
     setMeetings((prevMeetings) => prevMeetings.filter((meeting) => meeting.id !== meetingId));
   };
   return (
-    <div className="flex flex-col px-8 bg-gray-100 h-full">
-      <div className="flex w-full p-6 justify-between">
-        <div className="flex gap-2">
-          <h1 className="text-3xl text-gray-700 font-medium">Meetings</h1>
-        </div>
-        <div className="flex justify-between">
-          <Button
-            className="rounded-full flex gap-2"
-            variant="default"
-            size="default"
-            onClick={handleCreateMeeting}
-          >
-            Create New Meeting
-          </Button>
-          <ModalWrapper isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-            <CreateMeetingModal userId={session?.user.id} onClose={() => setIsModalOpen(false)} />
-          </ModalWrapper>
-          {/* <DatePickerDemo availableDates={availableDates} onDateSelect={setSelectedDate} /> */}
-        </div>
-      </div>
+    <div className="flex flex-col flex-grow px-4 sm:px-6 lg:px-8 bg-gray-100 h-full">
+  <div className="flex flex-col space-y-4 sm:space-y-0 sm:flex-row w-full p-4 sm:p-6 justify-between items-start sm:items-center">
+    {/* Title Section */}
+    <div className="flex gap-2 items-center">
+      <h1 className="text-2xl sm:text-3xl text-gray-700 font-medium">Meetings</h1>
+    </div>
+    
+    {/* Action Section */}
+    <div className="flex justify-end w-full sm:w-auto">
+      <Button
+        className="rounded-full flex gap-2 w-full sm:w-auto justify-center px-4 py-2 text-sm sm:text-base"
+        variant="default"
+        size="default"
+        onClick={handleCreateMeeting}
+      >
+        <span className="hidden xs:inline">Create New Meeting</span>
+        <span className="xs:hidden">Create Meeting</span>
+      </Button>
+      
+      <ModalWrapper isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <CreateMeetingModal userId={session?.user.id} onClose={() => setIsModalOpen(false)} />
+      </ModalWrapper>
+      
+      {/* <DatePickerDemo availableDates={availableDates} onDateSelect={setSelectedDate} /> */}
+    </div>
+  </div>
       {loading ? (
         <Loading />
       ) : (
         <div className="bg-white px-3 rounded-xl shadow-xl">
-          <div className="w-full flex items-center p-4">
+          <div className="w-full hidden lg:flex items-center p-4">
             <p className="w-1/5 text-center">Title</p>
             <p className="w-1/5 text-center">Description</p>
             <p className="w-1/5 text-center">Date</p>
@@ -87,6 +93,7 @@ export default function MeetingsPage() {
             meetings.map((meeting, index) => (
               <MeetingCard
                 key={index}
+                index={index}
                 meeting={meeting}
                 userId={session!.user.id}
                 onDelete={handleDeleteMeeting}
