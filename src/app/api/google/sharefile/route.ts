@@ -23,6 +23,15 @@ export async function POST(req: Request) {
         fields: "id",
       });
       if (!user) continue;
+      if (user) {
+        await prisma.notification.create({
+          data: {
+            userId: user.id,
+            documentId: fileId,
+            message: `You have been granted access to the file "${file.googleId}".`,
+          },
+        });
+      }
 
       const alreadyShared = await prisma.fileShare.findFirst({
         where: { documentId: fileId, userEmail: email },

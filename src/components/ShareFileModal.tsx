@@ -3,6 +3,7 @@ import { AiOutlineCloseCircle } from "react-icons/ai";
 import { toast } from "react-toastify";
 import { emailSchema } from "@/lib/validator";
 import { z } from "zod";
+import { useSession } from "next-auth/react";
 
 type EmailEntry = {
 email: string;
@@ -13,6 +14,7 @@ export default function ShareFileModal({ onClose, documentId, userId }: { onClos
   const [loading, setLoading] = useState(false);
   const [emails, setEmails] = useState<EmailEntry[]>([]);
   const [inputValue, setInputValue] = useState("");
+  const {data: session} = useSession();
 
   const handleAddEmail = async () => {
     const email = inputValue.trim();
@@ -20,6 +22,10 @@ export default function ShareFileModal({ onClose, documentId, userId }: { onClos
   
     try {
       emailSchema.parse({ email });
+      if(session?.user?.email === email) {
+        toast.error("You cannot share the document with yourself.");
+        return;
+      }
   
       const res = await fetch("/api/user/check-exists", {
         method: "POST",

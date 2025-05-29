@@ -13,12 +13,14 @@ export async function GET(req: Request) {
       orderBy: { createdAt: "desc" },
       include: {
         meeting: {
-          select: {
-            title: true,
-          },
+          select: { title: true },
+        },
+        document: {
+          select: { googleId: true },
         },
       },
     });
+
 
     return NextResponse.json({ notifications });
   } catch (error) {

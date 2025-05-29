@@ -80,7 +80,7 @@ export default function MeetingCard({
           <Button
             variant="fileAction"
             size="none"
-            className="h-6"
+            className="h-6 hover:text-red-500"
             onClick={handleDelete}
             disabled={!isOwner}
           >
@@ -123,6 +123,7 @@ export default function MeetingCard({
           <Button
             variant="fileAction"
             size="sm"
+            className="hover:text-red-500"
             onClick={handleDelete}
             disabled={!isOwner}
           >
@@ -157,7 +158,7 @@ export default function MeetingCard({
               size="sm"
               onClick={handleDelete}
               disabled={!isOwner}
-              className="p-2"
+              className="p-2 hover:text-red-500"
             >
               <FaRegTrashAlt size={24} />
             </Button>

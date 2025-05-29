@@ -14,7 +14,10 @@ interface Notification {
   isRead: boolean;
   meeting: {
     title: string;
-  };
+  } | null;
+  document?: {
+    googleId: string;
+  } | null;
 }
 
 export default function NotificationDropdown() {
@@ -29,6 +32,7 @@ export default function NotificationDropdown() {
       );
 
       const data = await response.json();
+      console.log("Fetched notifications:", data.notifications);
       setNotifications(data.notifications);
     }
 
@@ -76,7 +80,7 @@ export default function NotificationDropdown() {
                     className="p-3 hover:bg-gray-200 rounded-2xl"
                   >
                     <p className="text-sm">
-                      {notification.message + " " + notification.meeting.title}
+                      {notification.message + " " + (notification.meeting ? notification.meeting?.title : "")}
                     </p>
                     <div>
                       <span className="text-xs text-gray-500">

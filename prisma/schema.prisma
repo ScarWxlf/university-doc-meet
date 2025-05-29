@@ -34,6 +34,7 @@ model Document {
   createdBy   User     @relation("CreatedDocuments", fields: [createdById], references: [id], onDelete: Cascade)
   createdById Int
   sharedWith  FileShare[]  @relation("SharedDocuments")
+  notifications Notification[] @relation("DocumentNotification")
 }
 
 model FileShare {
@@ -76,12 +77,14 @@ model MeetingStats {
 
 
 model Notification {
-  id          Int      @id @default(autoincrement())
-  user        User     @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
+  id          Int       @id @default(autoincrement())
+  user        User      @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
   userId      Int
-  meeting     Meeting? @relation("MeetingNotification", fields: [meetingId], references: [id], onDelete: Cascade)
+  meeting     Meeting?  @relation("MeetingNotification", fields: [meetingId], references: [id], onDelete: Cascade)
   meetingId   Int?
+  document    Document? @relation("DocumentNotification", fields: [documentId], references: [googleId], onDelete: Cascade)
+  documentId  String?
   message     String
-  isRead      Boolean  @default(false)
-  createdAt   DateTime @default(now())
+  isRead      Boolean   @default(false)
+  createdAt   DateTime  @default(now())
 }

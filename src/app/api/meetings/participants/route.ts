@@ -54,6 +54,20 @@ export async function POST(req: Request) {
   try {
     const { meetingId, email } = await req.json();
 
+    const meeting = await prisma.meeting.findUnique({
+      where: { id: meetingId }
+    });
+    const userOwnerEmail = await prisma.user.findUnique({
+      where: { id: meeting?.createdById },
+      select: { email: true },
+    });
+    if (userOwnerEmail?.email === email) {
+      return NextResponse.json(
+        { error: "You cannot add yourself as a participant" },
+        { status: 400 }
+      );
+    }
+
     const user = await prisma.user.findUnique({
       where: { email },
     });

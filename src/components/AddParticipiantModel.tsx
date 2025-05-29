@@ -26,7 +26,7 @@ export default function AddParticipiantModel({
         toast.error(data.error);
       }
     } catch (error) {
-      console.error("Error fetching participants:", error);
+      console.log("Error fetching participants:", error);
       toast.error("Error fetching participants.");
     }
   }, [meetingId]);

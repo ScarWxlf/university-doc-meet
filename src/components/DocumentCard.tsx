@@ -63,9 +63,6 @@ export default function DocumentCard({ index, file, userId, onDelete }: { index:
     return (
         <>
         {index !== 0 && (<div className="h-[1px] bg-gray-400"/>)}
-
-        {/* Desktop версія */}
-        <div className="hidden lg:flex w-full justify-between items-center p-4">
           <ModalWrapper isOpen={shareFileModalOpen} onClose={() => setShareFileModalOpen(false)}>
             <ShareFileModal
               userId={userId}
@@ -75,6 +72,8 @@ export default function DocumentCard({ index, file, userId, onDelete }: { index:
               documentId={file.id}
             />
           </ModalWrapper>
+        {/* Desktop версія */}
+        <div className="hidden lg:flex w-full justify-between items-center p-4">
           
             <div className='w-1/5 text-center truncate px-2'>{file.name}</div>
             <div className='w-1/5 text-center truncate px-2'>{file.userOwnerEmail}</div>
@@ -108,15 +107,6 @@ export default function DocumentCard({ index, file, userId, onDelete }: { index:
 
         {/* Tablet версія */}
         <div className="hidden md:flex lg:hidden w-full flex-col p-4 space-y-3">
-          <ModalWrapper isOpen={shareFileModalOpen} onClose={() => setShareFileModalOpen(false)}>
-            <ShareFileModal
-              userId={userId}
-              onClose={() => {
-                setShareFileModalOpen(false);
-              }}
-              documentId={file.id}
-            />
-          </ModalWrapper>
           
           <div className="flex justify-between items-start">
             <div className="flex-1">
@@ -155,15 +145,6 @@ export default function DocumentCard({ index, file, userId, onDelete }: { index:
 
         {/* Mobile версія */}
         <div className="flex md:hidden w-full flex-col p-4 space-y-3">
-          <ModalWrapper isOpen={shareFileModalOpen} onClose={() => setShareFileModalOpen(false)}>
-            <ShareFileModal
-              userId={userId}
-              onClose={() => {
-                setShareFileModalOpen(false);
-              }}
-              documentId={file.id}
-            />
-          </ModalWrapper>
           
           <div className="flex flex-col space-y-2">
             <div className="font-medium text-lg break-words">{file.name}</div>
