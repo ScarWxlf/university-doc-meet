@@ -67,7 +67,7 @@ export function CreateMeetingModal({
   };
 
   return (
-      <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+      <div className="bg-white p-6 rounded-lg shadow-lg w-[85%] sm:w-96">
         <h2 className="text-lg font-semibold">Create Meeting</h2>
         <input
           type="text"

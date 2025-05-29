@@ -95,8 +95,7 @@ export default function AddParticipiantModel({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-96 shadow-lg">
+      <div className="bg-white rounded-lg p-6 w-[85%] sm:w-96 shadow-lg">
         <h2 className="text-lg font-semibold mb-4">Manage Participants</h2>
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -145,6 +144,5 @@ export default function AddParticipiantModel({
           </div>
         </div>
       </div>
-    </div>
   );
 }

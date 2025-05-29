@@ -37,7 +37,7 @@ export default function ModalWrapper({ isOpen, onClose, children }: ModalWrapper
         "opacity-100 scale-100 pointer-events-auto": isOpen,
         }
     )}>
-      <div ref={modalRef} className="relative">
+      <div ref={modalRef} className="flex w-full justify-center relative">
         {children}
       </div>
     </div>
