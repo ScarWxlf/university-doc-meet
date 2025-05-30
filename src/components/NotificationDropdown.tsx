@@ -66,7 +66,7 @@ export default function NotificationDropdown() {
         )}
       </button>
         <DropdownWrapper isOpen={menuOpen} onClose={() => setMenuOpen(false)}>
-          <div className={cn("absolute right-0 top-4 mt-2 w-80 bg-white shadow-lg rounded-2xl p-3 z-50 transition-all duration-300", 
+          <div className={cn("absolute -right-14 sm:right-0 top-4 mt-2 w-80 bg-white shadow-lg rounded-2xl p-3 z-50 transition-all duration-300", 
             {
               "opacity-0 scale-95 pointer-events-none": !menuOpen,
               "opacity-100 scale-100 pointer-events-auto": menuOpen,

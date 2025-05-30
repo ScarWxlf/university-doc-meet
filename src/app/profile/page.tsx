@@ -7,9 +7,12 @@ import { toast } from "react-toastify";
 import { z } from "zod";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
+import { IoMdEye, IoMdEyeOff } from "react-icons/io";
 
 export default function Profile() {
   const { data: session, status, update } = useSession();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const user = session?.user;
 
   const [form, setForm] = useState({
@@ -53,13 +56,13 @@ export default function Profile() {
     try {
       setLoading(true);
       setErrors({});
-      profileUpdateSchema.parse({ 
-        email: form.email, 
-        password: form.password, 
-        confirmPassword: form.confirmPassword, 
-        name: form.name 
+      profileUpdateSchema.parse({
+        email: form.email,
+        password: form.password,
+        confirmPassword: form.confirmPassword,
+        name: form.name,
       });
-      
+
       const response = await fetch("/api/profile", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -93,7 +96,6 @@ export default function Profile() {
   return (
     <div className="flex flex-col min-h-screen bg-gray-100 px-4 sm:px-8 lg:px-16 py-4">
       <div className="flex flex-col items-center bg-white p-4 sm:p-6 lg:p-8 xl:px-16 my-2 sm:my-4 rounded-lg shadow-md w-full max-w-6xl mx-auto space-y-4 sm:space-y-6">
-        
         {/* User Info Section */}
         {status === "authenticated" && (
           <div className="flex flex-col items-center gap-3 w-full">
@@ -104,7 +106,9 @@ export default function Profile() {
               height={120}
               alt="avatar"
             />
-            <p className="text-xl sm:text-2xl font-medium text-center">{user?.name}</p>
+            <p className="text-xl sm:text-2xl font-medium text-center">
+              {user?.name}
+            </p>
           </div>
         )}
 
@@ -114,7 +118,6 @@ export default function Profile() {
 
         {/* Form Section */}
         <div className="flex flex-col lg:flex-row justify-center gap-4 lg:gap-6 w-full max-w-4xl">
-          
           {/* Left Column - Email and Name */}
           <div className="w-full lg:w-1/2 space-y-4">
             <div>
@@ -141,7 +144,7 @@ export default function Profile() {
                 placeholder="Enter new name"
                 value={form.name}
                 onChange={handleChange}
-                className="border-2 border-gray-300 rounded-md p-2 sm:p-3 w-full text-sm sm:text-base focus:border-blue-500 focus:outline-none"
+                className="border-2 border-gray-300 rounded-md p-2 sm:p-3 w-full text-sm sm:text-base focus:border-green-500 focus:outline-none"
               />
               {errors?.name && (
                 <div className="flex flex-col text-red-500 text-xs sm:text-sm text-start w-full mt-2">
@@ -162,30 +165,56 @@ export default function Profile() {
               <label className="block font-medium mb-2 text-sm sm:text-base">
                 New Password
               </label>
-              <input
-                type="password"
-                name="password"
-                placeholder="Enter new password"
-                value={form.password}
-                onChange={handleChange}
-                className="border-2 border-gray-300 rounded-md p-2 sm:p-3 w-full text-sm sm:text-base focus:border-blue-500 focus:outline-none"
-              />
+              <div className="relative w-full">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  placeholder="Enter new password"
+                  value={form.password}
+                  onChange={handleChange}
+                  className="border-2 border-gray-300 rounded-md p-2 sm:p-3 w-full text-sm sm:text-base focus:border-green-500 focus:outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:scale-125 transition-transform duration-200"
+                >
+                  {showPassword ? (
+                    <IoMdEyeOff size={20} />
+                  ) : (
+                    <IoMdEye size={20} />
+                  )}
+                </button>
+              </div>
             </div>
-            
+
             <div>
               <label className="block font-medium mb-2 text-sm sm:text-base">
                 Confirm Password
               </label>
-              <input
-                type="password"
-                name="confirmPassword"
-                placeholder="Confirm new password"
-                value={form.confirmPassword}
-                onChange={handleChange}
-                className="border-2 border-gray-300 rounded-md p-2 sm:p-3 w-full text-sm sm:text-base focus:border-blue-500 focus:outline-none"
-              />
+              <div className="relative w-full">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  name="confirmPassword"
+                  placeholder="Confirm new password"
+                  value={form.confirmPassword}
+                  onChange={handleChange}
+                  className="border-2 border-gray-300 rounded-md p-2 sm:p-3 w-full text-sm sm:text-base focus:border-green-500 focus:outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword((prev) => !prev)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:scale-125 transition-transform duration-200"
+                >
+                  {showPassword ? (
+                    <IoMdEyeOff size={20} />
+                  ) : (
+                    <IoMdEye size={20} />
+                  )}
+                </button>
+              </div>
             </div>
-            
+
             {errors?.password && (
               <div className="flex flex-col text-red-500 text-xs sm:text-sm text-start w-full mt-2">
                 {errors.password.map((error) => (
@@ -200,9 +229,9 @@ export default function Profile() {
         </div>
 
         {/* Save Button */}
-        <Button 
-          className="w-full sm:w-80 lg:w-96 mt-4 sm:mt-6 py-2 sm:py-3 text-sm sm:text-base" 
-          onClick={handleSave} 
+        <Button
+          className="w-full sm:w-80 lg:w-96 mt-4 sm:mt-6 py-2 sm:py-3 text-sm sm:text-base"
+          onClick={handleSave}
           disabled={loading}
         >
           {loading ? "Saving..." : "Save Changes"}

@@ -29,7 +29,7 @@ export default function DropdownWrapper({ isOpen, onClose, children }: DropdownW
   }, [isOpen, onClose]);
 
   return (
-    <div ref={wrapperRef} className="relative pointer-events-none">
+    <div ref={wrapperRef} className="relative pointer-events-none z-10">
       {children}
     </div>
   );
