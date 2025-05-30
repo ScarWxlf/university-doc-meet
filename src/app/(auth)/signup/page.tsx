@@ -64,7 +64,7 @@ export default function SignUp() {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row flex-grow">
+    <div className="flex h-screen flex-col lg:flex-row flex-grow">
       <DecorativeFileSection bgImage="/images/signup-bg.png" />
       <div className="h-full w-full lg:w-3/5 p-10 flex-grow flex flex-col">
         <div className="flex justify-between items-center">

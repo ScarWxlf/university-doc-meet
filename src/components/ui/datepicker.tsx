@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { format, isSameDay } from "date-fns"
+import { format } from "date-fns"
 import { FaCalendarAlt } from "react-icons/fa";
 
 import { cn } from "@/lib/utils"
@@ -24,11 +24,27 @@ export function DatePickerDemo({
 
   const handleDateSelect = (date: Date | undefined) => {
     setSelectedDate(date);
-    onDateSelect(date);
+    
+    if (date) {
+      // Створюємо нормалізовану дату без часу
+      const normalizedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      console.log('DatePicker - Selected date:', normalizedDate);
+      onDateSelect(normalizedDate);
+    } else {
+      onDateSelect(undefined);
+    }
   };
 
-  const isDateAvailable = (date: Date) =>
-    availableDates.some((availableDate) => isSameDay(availableDate, date));
+  const isDateAvailable = (date: Date) => {
+    return availableDates.some((availableDate) => {
+      // Порівнюємо тільки дати, ігноруючи час
+      return (
+        date.getFullYear() === availableDate.getFullYear() &&
+        date.getMonth() === availableDate.getMonth() &&
+        date.getDate() === availableDate.getDate()
+      );
+    });
+  };
 
   return (
     <Popover>
@@ -41,7 +57,7 @@ export function DatePickerDemo({
           )}
         >
           <FaCalendarAlt className="mr-2" />
-          {selectedDate  ? format(selectedDate, "PPP") : <span>Pick a date</span>}
+          {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">

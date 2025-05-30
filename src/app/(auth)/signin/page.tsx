@@ -46,7 +46,7 @@ export default function SignIn() {
     }
   };
   return (
-    <div className="flex flex-col lg:flex-row flex-grow lg:overflow-hidden">
+    <div className="flex h-screen flex-col lg:flex-row flex-grow lg:overflow-hidden">
       <div className="h-full w-full lg:w-3/5 p-10 flex flex-grow flex-col order-1 lg:-order-1">
         <div className="flex justify-between items-center">
           <Link className="flex gap-2 text-xl font-medium" href='/'>

@@ -47,14 +47,29 @@ export default function Home() {
       name.endsWith(".png")
     );
   };
-  // const [debouncedSearch, setDebouncedSearch] = useState("");
-  // useEffect(() => {
-  //   const timer = setTimeout(() => {
-  //     setDebouncedSearch(searchName);
-  //   }, 1000);
 
-  //   return () => clearTimeout(timer);
-  // }, [searchName]);
+  useEffect(() => {
+    async function fetchAvailableDates() {
+      const response = await fetch("/api/google/availabledates", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: session?.user?.id,
+          documentType,
+          userEmail: session?.user?.email,
+        }),
+      });
+      const result = await response.json();
+      const uniqueDates = result.dates.map((dateString: string) => {
+        const d = new Date(dateString);
+        return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+      });
+      setAvailableDates(uniqueDates);
+    }
+
+    if (session) fetchAvailableDates();
+  }, [session, documentType]);
+
 
   useEffect(() => {
     const url = new URL(window.location.href);
@@ -70,37 +85,35 @@ export default function Home() {
 
     async function getFiles() {
       setLoading(true);
-      if (status !== "loading") {
-        if (session !== null) {
-          const response = await fetch("/api/google/getfiles", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              userId: session?.user?.id,
-              userEmail: session?.user?.email,
-              documentType,
-              searchName,
-              selectedDate,
-            }),
-          });
-          const data = await response.json();
-          setData(data.files);
-          if (data.files) {
-            const uniqueDates: Date[] = Array.from(
-              new Set(
-                data.files.map(
-                  (file: { createdTime: string }) => new Date(file.createdTime)
-                )
-              )
-            );
-            setAvailableDates(uniqueDates);
-          }
+      if (status !== "loading" && session) {
+        let dateToSend = null;
+        if (selectedDate) {
+          const year = selectedDate.getFullYear();
+          const month = String(selectedDate.getMonth() + 1).padStart(2, "0");
+          const day = String(selectedDate.getDate()).padStart(2, "0");
+          dateToSend = `${year}-${month}-${day}`;
         }
-        setLoading(false);
+
+        const response = await fetch("/api/google/getfiles", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId: session?.user?.id,
+            userEmail: session?.user?.email,
+            documentType,
+            searchName,
+            selectedDate: dateToSend,
+          }),
+        });
+
+        const result = await response.json();
+        setData(result.files || []);
       }
+      setLoading(false);
     }
+
     getFiles();
   }, [session, status, isModalOpen, documentType, searchName, selectedDate]);
 
